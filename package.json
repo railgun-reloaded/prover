@@ -1,0 +1,36 @@
+{
+  "name": "@railgun-reloaded/base-prover-v2",
+  "version": "1.0.0",
+  "description": "Base Prover for Railgun transaction circuit v2",
+  "homepage": "https://github.com/railgun-reloaded/base-prover-v2#readme",
+  "bugs": {
+    "url": "https://github.com/railgun-reloaded/base-prover-v2/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/railgun-reloaded/base-prover-v2.git"
+  },
+  "license": "MIT",
+  "author": "RAILGUN Project Contributors",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "pretest": "npm run build",
+    "test": "NODE_OPTIONS=--enable-source-maps brittle --coverage test/**/*.js",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "devDependencies": {
+    "@railgun-reloaded/eslint-config": "^1.1.0",
+    "@railgun-reloaded/tsconfig": "^1.2.0",
+    "@types/node": "^22.13.10",
+    "brittle": "^3.12.2",
+    "eslint": "^9.22.0",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "snarkjs": "^0.7.5"
+  }
+}
