@@ -46,16 +46,16 @@ function arrayToByteLength (byteArray: Uint8Array, length: number) : Uint8Array 
  * @returns - Uint8Array representation of number string
  */
 function numberStringToUint8Array (ns: string, length: number): Uint8Array {
-  // Convert bigint to hex string
+  
   let hex = BigInt(ns).toString(16)
 
-  // If hex is odd length then add leading zero
+  
   if (hex.length % 2) hex = `0${hex}`
 
-  // Split into groups of 2 to create hex array
+  
   const hexArray = hex.match(/.{2}/g) ?? []
 
-  // Convert hex array to uint8 byte array
+ 
   const byteArray = new Uint8Array(hexArray.map((byte) => parseInt(byte, 16)))
 
   return arrayToByteLength(byteArray, length)
