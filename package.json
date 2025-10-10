@@ -1,7 +1,7 @@
 {
   "name": "@railgun-reloaded/base-prover-v2",
   "version": "1.0.0",
-  "description": "Base Prover for Railgun transaction circuit v2",
+  "description": "Base Prover for Railgun transactions circuit v2",
   "homepage": "https://github.com/railgun-reloaded/base-prover-v2#readme",
   "bugs": {
     "url": "https://github.com/railgun-reloaded/base-prover-v2/issues"
