@@ -4,7 +4,6 @@
  * @returns - 0x Prefixed Hex String
  */
 function uint8ArrayToHexString (array: Uint8Array) : string {
-  // Create empty hex string
   let hexString = ''
 
   // Loop through each byte of array
