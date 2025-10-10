@@ -11,11 +11,11 @@ function uint8ArrayToHexString (array: Uint8Array) : string {
 
     hexByte = hexByte.length === 1 ? '0' + hexByte : hexByte
 
-    // Append to hexString
+
     hexString += hexByte
   })
 
-  // Prefix with 0x
+
   return `0x${hexString}`
 }
 /**
@@ -34,7 +34,7 @@ function uint8ArrayToNumberString (array: Uint8Array) : string {
  * @returns - Padded array of Uint8Array
  */
 function arrayToByteLength (byteArray: Uint8Array, length: number) : Uint8Array {
-  // Check the length of array requested is large enough to accommodate the original array
+
   if (byteArray.length > length) throw new Error('BigInt byte size is larger than length')
 
   return new Uint8Array(new Array(length - byteArray.length).concat(...byteArray))
