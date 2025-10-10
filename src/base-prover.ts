@@ -52,7 +52,6 @@ export class RailgunBaseProver implements BaseProver {
    * @returns is proof valid
    */
   async verify (vkey: VKey, publicInputs: PublicInputs, proof: Proof): Promise<boolean> {
-  // Convert to snarkjs format
     const snarkJSFormattedProof = standardToSnarkJSProof(proof)
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(publicInputs)
 
