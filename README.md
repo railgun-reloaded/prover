@@ -1,6 +1,6 @@
 # `@railgun-reloaded/prover`
 
-> Prover / Verifier for Railgun transaction circuit v2
+> Base Prover for Railgun transactions circuit v2
 
 ## Example Usage
 ```ts
