@@ -39,7 +39,6 @@ function arrayToByteLength (byteArray: Uint8Array, length: number) : Uint8Array 
   // Check the length of array requested is large enough to accommodate the original array
   if (byteArray.length > length) throw new Error('BigInt byte size is larger than length')
 
-  // Create Uint8Array of requested length
   return new Uint8Array(new Array(length - byteArray.length).concat(...byteArray))
 }
 /**
