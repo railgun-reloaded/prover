@@ -7,7 +7,6 @@ function uint8ArrayToHexString (array: Uint8Array) : string {
   let hexString = ''
 
   array.forEach((byte) => {
-    // Convert integer representation to base 16
     let hexByte = byte.toString(16)
 
     hexByte = hexByte.length === 1 ? '0' + hexByte : hexByte
