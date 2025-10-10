@@ -56,7 +56,6 @@ export class RailgunBaseProver implements BaseProver {
     const snarkJSFormattedProof = standardToSnarkJSProof(proof)
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(publicInputs)
 
-    // verify and return
     return groth16.verify(vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
   }
 
