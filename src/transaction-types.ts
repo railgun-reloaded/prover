@@ -20,7 +20,7 @@ type Proof = {
 /**
  * Standard representation of circuit inputs
  */
-type CircuitInputs = {
+type TransactionCircuitInputs = {
   merkleRoot: Uint8Array,
   boundParamsHash: Uint8Array,
   token: Uint8Array,
@@ -84,7 +84,7 @@ type ProverArtifacts = {
  * PublicInputs for verifying, returned by prove()
  * NOTE: PublicInputs is the same as PublicSignals
  */
-type PublicInputs = {
+type TransactionPublicInputs = {
   proof: Proof;
   merkleRoot: Uint8Array;
   nullifiers: Uint8Array[];
@@ -92,33 +92,4 @@ type PublicInputs = {
   boundParams: Uint8Array; // Return a hash; interface is not important to circuit interaction
 }
 
-/**
- * Base Prover interface
- */
-export interface BaseProver {
-  /**
-   * Generate a proof for given circuit inputs
-   * @param circuitInputs - The inputs to the circuit
-   * @param artifacts - The prover artifacts with vkey,zkey and wasm
-   * @returns Promise resolving to circuit inputs and generated proof
-   */
-  prove(
-    circuitInputs: CircuitInputs,
-    artifacts:ProverArtifacts
-  ): Promise<{proof:Proof,publicInputs:PublicInputs}>;
-
-  /**
-   * Verify a proof against circuit inputs
-   * @param circuitInputs - The inputs to the circuit
-   * @param proof - The proof to verify
-   * @returns Promise resolving to verification result
-   */
-  verify(
-    vkey:VKey,
-    publicInputs: PublicInputs,
-    proof: Proof
-  ): Promise<boolean>;
-}
-
-
-export type {Proof,CircuitInputs,PublicInputs,SnarkJSCircuitInputFormat,ProverArtifacts,VKey}
+export type {Proof,TransactionCircuitInputs,TransactionPublicInputs,SnarkJSCircuitInputFormat,ProverArtifacts,VKey}
