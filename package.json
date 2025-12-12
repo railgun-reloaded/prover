@@ -1,14 +1,14 @@
 {
-  "name": "@railgun-reloaded/base-prover-v2",
+  "name": "@railgun-reloaded/prover",
   "version": "1.0.0",
-  "description": "Base Prover for Railgun transactions circuit v2",
-  "homepage": "https://github.com/railgun-reloaded/base-prover-v2#readme",
+  "description": "Snarkjs Prover for Railgun transactions circuit and POI circuits",
+  "homepage": "https://github.com/railgun-reloaded/prover#readme",
   "bugs": {
-    "url": "https://github.com/railgun-reloaded/base-prover-v2/issues"
+    "url": "https://github.com/railgun-reloaded/prover/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/railgun-reloaded/base-prover-v2.git"
+    "url": "git+ssh://git@github.com/railgun-reloaded/prover.git"
   },
   "license": "MIT",
   "author": "RAILGUN Project Contributors",
