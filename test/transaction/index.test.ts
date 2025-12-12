@@ -1,28 +1,28 @@
 import { hook, test } from 'brittle'
 
-import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from '../src/formatter'
-import { RailgunBaseProver } from '../src/index'
+import { SnarkjsTransactionProver } from '../../src/index'
+import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from '../../src/transaction-formatter'
 
 import { snarkJsCircuitInputs, snarkJsProofs, snarkJsPublicInputs, standardProofs, standardPublicInputs, testVectors } from './test-vectors'
 
 test('Should prove', async function (assert) {
   // Test with each circuit size (ex. 1x2, 2x2 etc.)
-  const prover = new RailgunBaseProver()
   for (const vector of testVectors) {
+    const prover = new SnarkjsTransactionProver(vector.artifacts)
     // Prove the inputs, which will throw an error if it fails
-    assert.execution(await prover.prove(vector.inputs, vector.artifacts), `Circuit Size ${vector.inputs.inputTXOs.length}x${vector.inputs.outputTXOs.length}`)
+    assert.execution(await prover.prove(vector.inputs), `Circuit Size ${vector.inputs.inputTXOs.length}x${vector.inputs.outputTXOs.length}`)
   }
 })
 
 test('Should prove and verify, using publicSignals returned from prove', async function (assert) {
   // Test with each circuit size (ex. 1x2, 2x2 etc.)
-  const prover = new RailgunBaseProver()
   for (const vector of testVectors) {
+    const prover = new SnarkjsTransactionProver(vector.artifacts)
     // Prove the test vectors
-    const { proof, publicInputs } = await prover.prove(vector.inputs, vector.artifacts)
+    const { proof, publicInputs } = await prover.prove(vector.inputs)
 
     // Verify the proofs, which returns a boolean
-    assert.ok(await prover.verify(vector.artifacts.vkey, publicInputs, proof), `Circuit Size ${vector.inputs.inputTXOs.length}x${vector.inputs.outputTXOs.length}`)
+    assert.ok(await prover.verify(publicInputs, proof), `Circuit Size ${vector.inputs.inputTXOs.length}x${vector.inputs.outputTXOs.length}`)
   }
 })
 
@@ -81,7 +81,10 @@ test('Should ensure formatting is correct for extracted PublicInputs', async fun
 })
 
 hook('Cleanup snarkJS', async function () {
-  const prover = new RailgunBaseProver()
   // Cleanup snarkJS curve that snarkJS leaves open from ffjavascript by default
-  await prover.cleanupSnarkJS()
+  for (const vector of testVectors) {
+    const prover = new SnarkjsTransactionProver(vector.artifacts)
+    // Prove the inputs, which will throw an error if it fails
+    await prover.cleanupSnarkJS()
+  }
 })

@@ -3,8 +3,8 @@ import path from 'path'
 
 import type { SnarkjsProof } from 'snarkjs'
 
-import type { CircuitInputs, Proof, ProverArtifacts } from '../src'
-import type { PublicInputs, SnarkJSCircuitInputFormat } from '../src/types'
+import type { Proof, ProverArtifacts, TransactionCircuitInputs } from '../../src'
+import type { SnarkJSCircuitInputFormat, TransactionPublicInputs } from '../../src/transaction-types'
 
 import vkey1x2 from './test-artifacts/1x2_vkey.json'
 import vkey2x2 from './test-artifacts/2x2_vkey.json'
@@ -30,7 +30,7 @@ const artifacts2x2 = {
 
 interface TestVector {
   proof: Proof;
-  inputs: CircuitInputs;
+  inputs: TransactionCircuitInputs;
   artifacts: ProverArtifacts;
 }
 
@@ -237,7 +237,7 @@ const snarkJsCircuitInputs: SnarkJSCircuitInputFormat[] = [
   }
 ]
 
-const standardPublicInputs: PublicInputs[] = [
+const standardPublicInputs: TransactionPublicInputs[] = [
   {
     proof: {
       a: {
