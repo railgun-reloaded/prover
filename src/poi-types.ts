@@ -42,7 +42,7 @@ type POIPublicInputs = {
    railgunTxidMerkleProofPathElements: Uint8Array[];
 
    // POI tree
-   poiInMerkleProofIndices: Uint8Array[];
+   poiInMerkleProofIndices: number[];
    poiInMerkleProofPathElements: Uint8Array[][];
  }
 

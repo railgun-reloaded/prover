@@ -29,7 +29,7 @@ function standardToSnarkJSInput (circuitInputs: POICircuitInputs): POISnarkjsFor
     railgunTxidIfHasUnshield: uint8ArrayToHexString(circuitInputs.railgunTxidIfHasUnshield),
     railgunTxidMerkleProofIndices: uint8ArrayToHexString(circuitInputs.railgunTxidMerkleProofIndices),
     railgunTxidMerkleProofPathElements: circuitInputs.railgunTxidMerkleProofPathElements.map(uint8ArrayToHexString),
-    poiInMerkleProofIndices: circuitInputs.poiInMerkleProofIndices.map(uint8ArrayToHexString),
+    poiInMerkleProofIndices: circuitInputs.poiInMerkleProofIndices.map(val => val.toString()),
     poiInMerkleProofPathElements: circuitInputs.poiInMerkleProofPathElements.map(txo => txo.map(uint8ArrayToHexString))
   }
 }
