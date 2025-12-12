@@ -1,4 +1,4 @@
-import type  {VKey} from 'snarkjs'
+import type { VKey } from 'snarkjs'
 /**
  * Standard Groth16 proof format
  */
@@ -79,7 +79,6 @@ type ProverArtifacts = {
   wasm: Uint8Array
 }
 
-
 /**
  * PublicInputs for verifying, returned by prove()
  * NOTE: PublicInputs is the same as PublicSignals
@@ -92,4 +91,4 @@ type TransactionPublicInputs = {
   boundParams: Uint8Array; // Return a hash; interface is not important to circuit interaction
 }
 
-export type {Proof,TransactionCircuitInputs,TransactionPublicInputs,SnarkJSCircuitInputFormat,ProverArtifacts,VKey}
+export type { Proof, SnarkJSCircuitInputFormat, TransactionCircuitInputs, TransactionPublicInputs, ProverArtifacts, VKey }

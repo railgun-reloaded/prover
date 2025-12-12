@@ -5,10 +5,10 @@ export type {
   SnarkJSCircuitInputFormat,
   ProverArtifacts,
   VKey,
-} from "./transaction-types";
+} from './transaction-types'
 export type {
   POICircuitInputs,
   POIPublicInputs
-} from "./poi-types";
-export {SnarkjsTransactionProver} from './snarkjs-transaction-prover'
-export {SnarkjsPoiProver} from './snarkjs-poi-prover'
+} from './poi-types'
+export { SnarkjsTransactionProver } from './snarkjs-transaction-prover'
+export { SnarkjsPoiProver } from './snarkjs-poi-prover'

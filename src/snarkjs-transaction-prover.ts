@@ -1,61 +1,61 @@
 import { curves, groth16 } from 'snarkjs'
 
+import type { BaseProver } from './base-prover'
 import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './transaction-formatter'
 import type {
   Proof,
   ProverArtifacts,
-  TransactionPublicInputs,
   TransactionCircuitInputs,
-  VKey
+  TransactionPublicInputs
 } from './transaction-types'
-import { BaseProver } from './base-prover';
-
-
 
 /**
- * Implementation of BaseProver for Railgun circuits
+ * Implementation of BaseProver for Railgun circuits using snarkjs
  */
-// eslint-disable-next-line import-x/group-exports
 
-export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitInputs,TransactionPublicInputs>{
-  public artifacts: ProverArtifacts;
+/**
+ * A proof generator for transaction circuits using the SnarkJS library.
+ * Implements zero-knowledge proof generation and verification for transaction validity,
+ * ensuring that transactions satisfy circuit constraints without revealing private inputs.
+ */
+export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitInputs, TransactionPublicInputs> {
+  /**
+   * Cryptographic artifacts required for proof generation and verification.
+   * Contains vkey,zkey and wasm.
+   */
+  public artifacts: ProverArtifacts
 
-  constructor(artifacts: ProverArtifacts) {
-    this.artifacts = artifacts;
+  /**
+   * Creates a new instance with the provided prover artifacts.
+   * @param artifacts - The prover artifacts containing vkey,zkey and wasm
+   */
+  constructor (artifacts: ProverArtifacts) {
+    this.artifacts = artifacts
   }
 
   /**
    * Create a Railgun transaction proof
    * @param circuitInputs - Circuit inputs for generating proof
-   * @param artifacts - Circuit artifacts
    * @returns Proof
    */
   async prove (circuitInputs: TransactionCircuitInputs): Promise<{ proof: Proof, publicInputs: TransactionPublicInputs }> {
-  // Format the inputs into snarkJS format
     const snarkJSFormattedInputs = standardToSnarkJSInput(circuitInputs)
 
-    // Generate proof
     const { proof } = await groth16.fullProve(snarkJSFormattedInputs, this.artifacts.wasm, this.artifacts.zkey)
 
-    // Standardize the proof
     const standardProof = snarkJSToStandardProof(proof)
 
-    // Extract public inputs
     const snarkJSFormattedPublicInputs = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof)
 
-    // Create snarkJS proof
     const snarkJSFormattedProof = standardToSnarkJSProof(standardProof)
 
-    // Ensure proof passes verification
     groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
 
-    // Format to Uint8Array and return
     return { proof: standardProof, publicInputs: snarkJSFormattedPublicInputs }
   }
 
   /**
    * Verify a Railgun transaction proof
-   * @param vkey - Circuit verifying key
    * @param publicInputs - Proof public inputs
    * @param proof - Snark proof
    * @returns is proof valid
