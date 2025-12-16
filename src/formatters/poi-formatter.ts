@@ -1,8 +1,9 @@
 import type { SnarkjsProof } from 'snarkjs'
 
-import { numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from './bytes'
 import type { POICircuitInputs, POIPublicInputs, POISnarkjsFormattedCircuitInputs } from '../types/poi-types'
 import type { Proof } from '../types/transaction-types'
+
+import { numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from './bytes'
 
 /**
  * Convert inputs to snarkJS format
@@ -86,7 +87,6 @@ function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
 /**
  * Convert standard public inputs to snarkJS format
  * @param publicInputs - Public inputs to format
- * @param blindedCommitmentsOut - blindedCommitmentsOut from the circuit output
  * @returns - Formatted snarkJS public inputs
  */
 function standardToSnarkJSPublicInputs (publicInputs: POIPublicInputs) : string[] {
