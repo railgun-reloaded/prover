@@ -20,14 +20,14 @@
 
 
 
-//Generate poi proof from inputs and artifacts
+  //Generate poi proof from inputs and artifacts
   const poiInputs = {...};
   const poiArtifacts ={...};
 
-   const poiProver = new SnarkjsPoiProver(poiArtifacts);
-   const {proof, publicInputs} = await poiProver.prove(poiInputs);
+  const poiProver = new SnarkjsPoiProver(poiArtifacts);
+  const {proof, publicInputs} = await poiProver.prove(poiInputs);
 
-   await poiProver.verify(publicInputs, proof)
+  await poiProver.verify(publicInputs, proof)
 
 ```
 
