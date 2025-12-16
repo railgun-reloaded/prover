@@ -2,8 +2,10 @@ import type { Proof } from './transaction-types'
 
 type POIPublicInputs = {
   proof: Proof;
+  blindedCommitmentsOut: Uint8Array[];
   poiMerkleroots: Uint8Array[];
   anyRailgunTxidMerklerootAfterTransaction: Uint8Array;
+  railgunTxidIfHasUnshield: Uint8Array
 }
 
  type POICircuitInputs = {
@@ -38,7 +40,7 @@ type POIPublicInputs = {
    railgunTxidIfHasUnshield: Uint8Array;
 
    // Railgun txidIndex: string; tree
-   railgunTxidMerkleProofIndices: Uint8Array;
+   railgunTxidMerkleProofIndices: number;
    railgunTxidMerkleProofPathElements: Uint8Array[];
 
    // POI tree
@@ -66,7 +68,7 @@ type POIPublicInputs = {
    valuesOut: string[];
    utxoBatchGlobalStartPositionOut: string;
    railgunTxidIfHasUnshield: string;
-   railgunTxidMerkleProofIndices: string;
+   railgunTxidMerkleProofIndices: number;
    railgunTxidMerkleProofPathElements: string[];
    poiInMerkleProofIndices: string[];
    poiInMerkleProofPathElements: string[][];

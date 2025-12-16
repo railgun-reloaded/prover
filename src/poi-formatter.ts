@@ -27,7 +27,7 @@ function standardToSnarkJSInput (circuitInputs: POICircuitInputs): POISnarkjsFor
     valuesOut: circuitInputs.valuesOut.map(val => val.toString()),
     utxoBatchGlobalStartPositionOut: uint8ArrayToHexString(circuitInputs.utxoBatchGlobalStartPositionOut),
     railgunTxidIfHasUnshield: uint8ArrayToHexString(circuitInputs.railgunTxidIfHasUnshield),
-    railgunTxidMerkleProofIndices: uint8ArrayToHexString(circuitInputs.railgunTxidMerkleProofIndices),
+    railgunTxidMerkleProofIndices: circuitInputs.railgunTxidMerkleProofIndices,
     railgunTxidMerkleProofPathElements: circuitInputs.railgunTxidMerkleProofPathElements.map(uint8ArrayToHexString),
     poiInMerkleProofIndices: circuitInputs.poiInMerkleProofIndices.map(val => val.toString()),
     poiInMerkleProofPathElements: circuitInputs.poiInMerkleProofPathElements.map(txo => txo.map(uint8ArrayToHexString))
@@ -54,13 +54,16 @@ function snarkJSToStandardProof (proof: SnarkjsProof): Proof {
  * Extract PublicInputs from CircuitInputs to be used in verify() after a prove() call
  * @param circuitInputs - CircuitInputs
  * @param proof - Standard Proof
+ * @param blindedCommitmentsOut - blindedCommitmentsOut from the circuit output
  * @returns Formatted PublicInputs to be used in verify()
  */
-function extractPublicInputsFromCircuitInputs (circuitInputs: POICircuitInputs, proof: Proof): POIPublicInputs {
+function extractPublicInputsFromCircuitInputs (circuitInputs: POICircuitInputs, proof: Proof, blindedCommitmentsOut:Uint8Array[]): POIPublicInputs {
   return {
     proof,
+    blindedCommitmentsOut,
     poiMerkleroots: circuitInputs.poiMerkleroots,
-    anyRailgunTxidMerklerootAfterTransaction: circuitInputs.anyRailgunTxidMerklerootAfterTransaction
+    anyRailgunTxidMerklerootAfterTransaction: circuitInputs.anyRailgunTxidMerklerootAfterTransaction,
+    railgunTxidIfHasUnshield: circuitInputs.railgunTxidIfHasUnshield
   }
 }
 
@@ -83,11 +86,14 @@ function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
 /**
  * Convert standard public inputs to snarkJS format
  * @param publicInputs - Public inputs to format
+ * @param blindedCommitmentsOut - blindedCommitmentsOut from the circuit output
  * @returns - Formatted snarkJS public inputs
  */
 function standardToSnarkJSPublicInputs (publicInputs: POIPublicInputs) : string[] {
   return [
+    ...publicInputs.blindedCommitmentsOut.map(uint8ArrayToNumberString),
     uint8ArrayToNumberString(publicInputs.anyRailgunTxidMerklerootAfterTransaction),
+    uint8ArrayToNumberString(publicInputs.railgunTxidIfHasUnshield),
     ...publicInputs.poiMerkleroots.map(uint8ArrayToNumberString)
   ]
 }
