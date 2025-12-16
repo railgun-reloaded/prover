@@ -27,8 +27,6 @@ const toBigIntString = (value: string | number | bigint): string => {
 
 const loadArtifacts = (subdir: '3x3' | '13x13'): ProverArtifacts => {
   const dir = path.join(ARTIFACTS_ROOT, subdir)
-  // const wasm = zlib.brotliDecompressSync(fs.readFileSync(path.join(dir, 'wasm.br')))
-  // const zkey = zlib.brotliDecompressSync(fs.readFileSync(path.join(dir, 'zkey.br')))
   const zkey = fs.readFileSync(path.resolve(dir, 'zkey'))
   const wasm = fs.readFileSync(path.resolve(dir, 'circuit.wasm'))
   const vkey = JSON.parse(fs.readFileSync(path.join(dir, 'vkey.json'), 'utf8'))
