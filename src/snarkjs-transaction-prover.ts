@@ -45,13 +45,15 @@ export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitIn
 
     const standardProof = snarkJSToStandardProof(proof)
 
-    const snarkJSFormattedPublicInputs = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof)
+    const standardPublicInput = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof)
+
+    const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(standardPublicInput)
 
     const snarkJSFormattedProof = standardToSnarkJSProof(standardProof)
 
     groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
 
-    return { proof: standardProof, publicInputs: snarkJSFormattedPublicInputs }
+    return { proof: standardProof, publicInputs: standardPublicInput }
   }
 
   /**
@@ -63,6 +65,8 @@ export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitIn
   async verify (publicInputs: TransactionPublicInputs, proof: Proof): Promise<boolean> {
     const snarkJSFormattedProof = standardToSnarkJSProof(proof)
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(publicInputs)
+
+    groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
 
     return groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
   }
