@@ -1,6 +1,7 @@
 import { curves, groth16 } from 'snarkjs'
 
 import type { BaseProver } from './base-prover'
+import { numberStringToUint8Array } from './bytes'
 import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './poi-formatter'
 import type { POICircuitInputs, POIPublicInputs } from './poi-types'
 import type {
@@ -40,17 +41,20 @@ export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicI
   async prove (circuitInputs: POICircuitInputs): Promise<{ proof: Proof, publicInputs: POIPublicInputs }> {
     const snarkJSFormattedInputs = standardToSnarkJSInput(circuitInputs)
 
-    const { proof } = await groth16.fullProve(snarkJSFormattedInputs, this.artifacts.wasm, this.artifacts.zkey)
+    const { proof, publicSignals } = await groth16.fullProve(snarkJSFormattedInputs, this.artifacts.wasm, this.artifacts.zkey)
 
     const standardProof = snarkJSToStandardProof(proof)
 
-    const snarkJSFormattedPublicInputs = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof)
+    const blindedCommitmentsOut = publicSignals.slice(0, 13).map((s: string) => numberStringToUint8Array(s, 32))
+    const standardPublicInputs = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof, blindedCommitmentsOut)
+
+    const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(standardPublicInputs)
 
     const snarkJSFormattedProof = standardToSnarkJSProof(standardProof)
 
     groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
 
-    return { proof: standardProof, publicInputs: snarkJSFormattedPublicInputs }
+    return { proof: standardProof, publicInputs: standardPublicInputs }
   }
 
   /**
