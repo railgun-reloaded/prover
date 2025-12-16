@@ -7,7 +7,7 @@ import path from 'path'
 import { hook, test } from 'brittle'
 
 import { SnarkjsPoiProver } from '../../src'
-import { numberStringToUint8Array } from '../../src/bytes'
+import { numberStringToUint8Array } from '../../src/formatters/bytes'
 import type { POICircuitInputs, ProverArtifacts } from '../../src/index'
 
 const ARTIFACTS_ROOT = path.resolve(__dirname, './artifacts')

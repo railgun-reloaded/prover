@@ -1,13 +1,13 @@
 import { curves, groth16 } from 'snarkjs'
 
 import type { BaseProver } from './base-prover'
-import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './transaction-formatter'
+import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from '../formatters/transaction-formatter'
 import type {
   Proof,
   ProverArtifacts,
   TransactionCircuitInputs,
   TransactionPublicInputs
-} from './transaction-types'
+} from '../types/transaction-types'
 
 /**
  * Implementation of BaseProver for Railgun circuits using snarkjs
@@ -65,8 +65,6 @@ export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitIn
   async verify (publicInputs: TransactionPublicInputs, proof: Proof): Promise<boolean> {
     const snarkJSFormattedProof = standardToSnarkJSProof(proof)
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(publicInputs)
-
-    groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
 
     return groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
   }

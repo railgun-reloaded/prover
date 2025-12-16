@@ -1,13 +1,13 @@
 import { curves, groth16 } from 'snarkjs'
 
-import type { BaseProver } from './base-prover'
-import { numberStringToUint8Array } from './bytes'
-import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './poi-formatter'
-import type { POICircuitInputs, POIPublicInputs } from './poi-types'
+import type { BaseProver } from './provers/base-prover'
+import { numberStringToUint8Array } from './formatters/bytes'
+import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatters/poi-formatter'
+import type { POICircuitInputs, POIPublicInputs } from './types/poi-types'
 import type {
   Proof,
   ProverArtifacts
-} from './transaction-types'
+} from './types/transaction-types'
 
 /**
  * Implementation of BaseProver for Railgun POI circuits using snarkjs
@@ -66,7 +66,6 @@ export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicI
   async verify (publicInputs: POIPublicInputs, proof: Proof): Promise<boolean> {
     const snarkJSFormattedProof = standardToSnarkJSProof(proof)
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(publicInputs)
-
     return groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
   }
 

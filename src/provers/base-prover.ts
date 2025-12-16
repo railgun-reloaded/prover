@@ -1,4 +1,4 @@
-import type { Proof, ProverArtifacts } from './transaction-types'
+import type { Proof, ProverArtifacts } from '../types/transaction-types'
 
 /**
  * Base Prover interface

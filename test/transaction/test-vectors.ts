@@ -4,7 +4,7 @@ import path from 'path'
 import type { SnarkjsProof } from 'snarkjs'
 
 import type { Proof, ProverArtifacts, TransactionCircuitInputs } from '../../src'
-import type { SnarkJSCircuitInputFormat, TransactionPublicInputs } from '../../src/transaction-types'
+import type { SnarkJSCircuitInputFormat, TransactionPublicInputs } from '../../src/types/transaction-types'
 
 import vkey1x2 from './test-artifacts/1x2_vkey.json'
 import vkey2x2 from './test-artifacts/2x2_vkey.json'
