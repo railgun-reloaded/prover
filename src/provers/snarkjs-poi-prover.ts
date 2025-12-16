@@ -1,13 +1,14 @@
 import { curves, groth16 } from 'snarkjs'
 
-import type { BaseProver } from './provers/base-prover'
-import { numberStringToUint8Array } from './formatters/bytes'
-import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatters/poi-formatter'
-import type { POICircuitInputs, POIPublicInputs } from './types/poi-types'
+import { numberStringToUint8Array } from '../formatters/bytes'
+import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from '../formatters/poi-formatter'
+import type { POICircuitInputs, POIPublicInputs } from '../types/poi-types'
 import type {
   Proof,
   ProverArtifacts
-} from './types/transaction-types'
+} from '../types/transaction-types'
+
+import type { BaseProver } from './base-prover'
 
 /**
  * Implementation of BaseProver for Railgun POI circuits using snarkjs
