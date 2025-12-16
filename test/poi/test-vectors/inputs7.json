@@ -132,8 +132,7 @@
     0
   ],
   "utxoTreeIn": "0",
-  "utxoTreeOut": "0",
-  "utxoBatchStartPositionOut": "2672",
+  "utxoBatchGlobalStartPositionOut": "2672",
   "railgunTxidIfHasUnshield": "21216083492739060524905418826855500202590205950268551954332646341142215255105",
   "poiMerkleroots": [
     "7432870884038681968803804261363744393676774721709050848358250492742518433033",

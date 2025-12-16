@@ -118,8 +118,7 @@
   ],
   "valuesOut": ["0", "0", "32183496880354275850", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   "utxoTreeIn": "0",
-  "utxoTreeOut": "0",
-  "utxoBatchStartPositionOut": "2",
+  "utxoBatchGlobalStartPositionOut": "2",
   "railgunTxidIfHasUnshield": "0x00",
   "poiMerkleroots": [
     "11818424364930592963832088714478202734918394395275665258335823549970972331583",
