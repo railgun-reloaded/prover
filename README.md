@@ -1,6 +1,6 @@
 # `@railgun-reloaded/prover`
 
-> Snarkjs Prover for Railgun transactions circuit v2 and POI cicuits
+> Prover for Railgun transactions circuit v2 and POI cicuits
 
 ## Example Usage
 
