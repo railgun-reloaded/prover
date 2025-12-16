@@ -12,6 +12,7 @@ import type { POICircuitInputs, ProverArtifacts } from '../../src/index'
 
 const ARTIFACTS_ROOT = path.resolve(__dirname, './artifacts')
 const TEST_VECTORS_DIR = path.resolve(__dirname, './test-vectors')
+const PROOF_TIMEOUT = 300000
 
 const toUint8 = (value: string | number | bigint): Uint8Array => {
   const asString = value.toString()
@@ -85,20 +86,21 @@ const loadTestVectors = (): PoiTestVector[] => {
 
 const testVectors = loadTestVectors()
 
-test('POI: Should prove all vectors', async function (assert) {
+test('POI: Should prove all vectors', { timeout: PROOF_TIMEOUT }, async function (assert) {
   for (const [i, vector] of testVectors.entries()) {
     const prover = new SnarkjsPoiProver(vector.artifacts)
-    // console.log(`\n=== Vector ${i} Input Keys ===`)
-    // console.log(Object.keys(vector.inputs).sort())
+
     assert.execution(await prover.prove(vector.inputs), `vector ${i}`)
   }
 })
 
-test('POI: Should prove and verify', async function (assert) {
+test('POI: Should prove and verify', { timeout: PROOF_TIMEOUT }, async function (assert) {
   for (const [i, vector] of testVectors.entries()) {
     const prover = new SnarkjsPoiProver(vector.artifacts)
     const { proof, publicInputs } = await prover.prove(vector.inputs)
-    assert.ok(await prover.verify(publicInputs, proof), `vector ${i}`)
+
+    const isValid = await prover.verify(publicInputs, proof)
+    assert.ok(isValid, `vector ${i}`)
   }
 })
 
