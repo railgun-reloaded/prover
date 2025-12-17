@@ -20,7 +20,7 @@
 
 
 
-  //Generate poi proof from inputs and artifacts
+  // Generate poi proof from inputs and artifacts
   const poiInputs = {...};
   const poiArtifacts ={...};
 
