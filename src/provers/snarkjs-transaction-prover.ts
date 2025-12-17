@@ -1,3 +1,4 @@
+import type { SnarkjsProof } from 'snarkjs'
 import { curves, groth16 } from 'snarkjs'
 
 import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from '../formatters/transaction-formatter'
@@ -42,17 +43,30 @@ export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitIn
   async prove (circuitInputs: TransactionCircuitInputs): Promise<{ proof: Proof, publicInputs: TransactionPublicInputs }> {
     const snarkJSFormattedInputs = standardToSnarkJSInput(circuitInputs)
 
-    const { proof } = await groth16.fullProve(snarkJSFormattedInputs, this.artifacts.wasm, this.artifacts.zkey)
+    let proof:SnarkjsProof
+
+    try {
+      const result = await groth16.fullProve(snarkJSFormattedInputs, this.artifacts.wasm, this.artifacts.zkey)
+      proof = result.proof
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      throw new Error(`Proof generation failed: ${errorMessage}`)
+    }
 
     const standardProof = snarkJSToStandardProof(proof)
-
     const standardPublicInput = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof)
-
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(standardPublicInput)
-
     const snarkJSFormattedProof = standardToSnarkJSProof(standardProof)
 
-    groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
+    try {
+      const isValid = await groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
+      if (!isValid) {
+        throw new Error('Generated proof is invalid')
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      throw new Error(`Proof verification failed: ${errorMessage}`)
+    }
 
     return { proof: standardProof, publicInputs: standardPublicInput }
   }
@@ -66,8 +80,12 @@ export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitIn
   async verify (publicInputs: TransactionPublicInputs, proof: Proof): Promise<boolean> {
     const snarkJSFormattedProof = standardToSnarkJSProof(proof)
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(publicInputs)
-
-    return groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
+    try {
+      return await groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      throw new Error(`Proof verification failed: ${errorMessage}`)
+    }
   }
 
   /**

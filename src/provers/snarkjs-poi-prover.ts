@@ -1,3 +1,4 @@
+import type { SnarkjsProof } from 'snarkjs'
 import { curves, groth16 } from 'snarkjs'
 
 import { numberStringToUint8Array } from '../formatters/bytes'
@@ -42,7 +43,17 @@ export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicI
   async prove (circuitInputs: POICircuitInputs): Promise<{ proof: Proof, publicInputs: POIPublicInputs }> {
     const snarkJSFormattedInputs = standardToSnarkJSInput(circuitInputs)
 
-    const { proof, publicSignals } = await groth16.fullProve(snarkJSFormattedInputs, this.artifacts.wasm, this.artifacts.zkey)
+    let proof: SnarkjsProof
+    let publicSignals: string[]
+
+    try {
+      const result = await groth16.fullProve(snarkJSFormattedInputs, this.artifacts.wasm, this.artifacts.zkey)
+      proof = result.proof
+      publicSignals = result.publicSignals
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      throw new Error(`Proof generation failed: ${errorMessage}`)
+    }
 
     const standardProof = snarkJSToStandardProof(proof)
 
@@ -50,10 +61,17 @@ export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicI
     const standardPublicInputs = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof, blindedCommitmentsOut)
 
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(standardPublicInputs)
-
     const snarkJSFormattedProof = standardToSnarkJSProof(standardProof)
 
-    groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
+    try {
+      const isValid = await groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
+      if (!isValid) {
+        throw new Error('Generated proof is invalid')
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      throw new Error(`Proof verification failed: ${errorMessage}`)
+    }
 
     return { proof: standardProof, publicInputs: standardPublicInputs }
   }
@@ -67,7 +85,13 @@ export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicI
   async verify (publicInputs: POIPublicInputs, proof: Proof): Promise<boolean> {
     const snarkJSFormattedProof = standardToSnarkJSProof(proof)
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(publicInputs)
-    return groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
+
+    try {
+      return await groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      throw new Error(`Proof verification failed: ${errorMessage}`)
+    }
   }
 
   /**
