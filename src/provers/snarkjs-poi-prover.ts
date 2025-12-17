@@ -25,7 +25,7 @@ export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicI
    * Cryptographic artifacts required for proof generation and verification.
    * Contains vkey,zkey and wasm.
    */
-  public artifacts: ProverArtifacts
+  public readonly artifacts: ProverArtifacts
 
   /**
    * Creates a new instance with the provided prover artifacts.

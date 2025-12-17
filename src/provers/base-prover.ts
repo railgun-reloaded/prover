@@ -4,7 +4,7 @@ import type { Proof, ProverArtifacts } from '../types/transaction-types'
  * Base Prover interface
  */
 export interface BaseProver<TCircuitInputs, TPublicInputs> {
-  artifacts: ProverArtifacts
+  readonly artifacts: ProverArtifacts
   /**
    * Generate a proof for given circuit inputs
    * @param circuitInputs - The inputs to the circuit
