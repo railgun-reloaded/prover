@@ -57,7 +57,9 @@ export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicI
 
     const standardProof = snarkJSToStandardProof(proof)
 
-    const blindedCommitmentsOut = publicSignals.slice(0, 13).map((s: string) => numberStringToUint8Array(s, 32))
+    const blindedCommitmentsLength = circuitInputs.poiMerkleroots.length
+
+    const blindedCommitmentsOut = publicSignals.slice(0, blindedCommitmentsLength).map((s: string) => numberStringToUint8Array(s, 32))
     const standardPublicInputs = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof, blindedCommitmentsOut)
 
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(standardPublicInputs)
