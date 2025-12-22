@@ -8,9 +8,9 @@ import {
   standardToSnarkJSInput,
   standardToSnarkJSProof,
   standardToSnarkJSPublicInputs
-} from '../../src/formatters/poi-formatter'
-import type { POICircuitInputs, POIPublicInputs } from '../../src/types/poi-types'
-import type { Proof } from '../../src/types/transaction-types'
+} from '../../src/poi/formatter'
+import type { POICircuitInputs, POIPublicInputs } from '../../src/poi/types'
+import type { Proof } from '../../src/transaction/types'
 
 const createMockUint8Array = (value: number): Uint8Array => {
   return numberStringToUint8Array(value.toString(), 32)

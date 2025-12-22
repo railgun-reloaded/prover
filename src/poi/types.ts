@@ -1,4 +1,4 @@
-import type { Proof } from './transaction-types'
+import type { Proof, ProverArtifacts } from '../types/types'
 
 type POIPublicInputs = {
   proof: Proof;
@@ -74,4 +74,4 @@ type POIPublicInputs = {
    poiInMerkleProofPathElements: string[][];
  }
 
-export type { POIPublicInputs, POICircuitInputs, POISnarkjsFormattedCircuitInputs }
+export type { POIPublicInputs, POICircuitInputs, POISnarkjsFormattedCircuitInputs, Proof, ProverArtifacts }

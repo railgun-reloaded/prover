@@ -1,18 +1,14 @@
 import type { SnarkjsProof } from 'snarkjs'
 import { curves, groth16 } from 'snarkjs'
 
-import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from '../formatters/transaction-formatter'
-import type {
-  Proof,
-  ProverArtifacts,
-  TransactionCircuitInputs,
-  TransactionPublicInputs
-} from '../types/transaction-types'
+import { numberStringToUint8Array } from '../formatters/bytes'
+import type { BaseProver } from '../provers/base-prover'
 
-import type { BaseProver } from './base-prover'
+import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatter'
+import type { POICircuitInputs, POIPublicInputs, Proof, ProverArtifacts } from './types'
 
 /**
- * Implementation of BaseProver for Railgun circuits using snarkjs
+ * Implementation of BaseProver for Railgun POI circuits using snarkjs
  */
 
 /**
@@ -20,7 +16,7 @@ import type { BaseProver } from './base-prover'
  * Implements zero-knowledge proof generation and verification for transaction validity,
  * ensuring that transactions satisfy circuit constraints without revealing private inputs.
  */
-export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitInputs, TransactionPublicInputs> {
+export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicInputs> {
   /**
    * Cryptographic artifacts required for proof generation and verification.
    * Contains vkey,zkey and wasm.
@@ -37,25 +33,32 @@ export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitIn
 
   /**
    * Create a Railgun transaction proof
-   * @param circuitInputs - Circuit inputs for generating proof
+   * @param circuitInputs - POI Circuit inputs for generating proof
    * @returns Proof
    */
-  async prove (circuitInputs: TransactionCircuitInputs): Promise<{ proof: Proof, publicInputs: TransactionPublicInputs }> {
+  async prove (circuitInputs: POICircuitInputs): Promise<{ proof: Proof, publicInputs: POIPublicInputs }> {
     const snarkJSFormattedInputs = standardToSnarkJSInput(circuitInputs)
 
-    let proof:SnarkjsProof
+    let proof: SnarkjsProof
+    let publicSignals: string[]
 
     try {
       const result = await groth16.fullProve(snarkJSFormattedInputs, this.artifacts.wasm, this.artifacts.zkey)
       proof = result.proof
+      publicSignals = result.publicSignals
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       throw new Error(`Proof generation failed: ${errorMessage}`)
     }
 
     const standardProof = snarkJSToStandardProof(proof)
-    const standardPublicInput = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof)
-    const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(standardPublicInput)
+
+    const blindedCommitmentsLength = circuitInputs.poiMerkleroots.length
+
+    const blindedCommitmentsOut = publicSignals.slice(0, blindedCommitmentsLength).map((s: string) => numberStringToUint8Array(s, 32))
+    const standardPublicInputs = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof, blindedCommitmentsOut)
+
+    const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(standardPublicInputs)
     const snarkJSFormattedProof = standardToSnarkJSProof(standardProof)
 
     try {
@@ -68,7 +71,7 @@ export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitIn
       throw new Error(`Proof verification failed: ${errorMessage}`)
     }
 
-    return { proof: standardProof, publicInputs: standardPublicInput }
+    return { proof: standardProof, publicInputs: standardPublicInputs }
   }
 
   /**
@@ -77,9 +80,10 @@ export class SnarkjsTransactionProver implements BaseProver<TransactionCircuitIn
    * @param proof - Snark proof
    * @returns is proof valid
    */
-  async verify (publicInputs: TransactionPublicInputs, proof: Proof): Promise<boolean> {
+  async verify (publicInputs: POIPublicInputs, proof: Proof): Promise<boolean> {
     const snarkJSFormattedProof = standardToSnarkJSProof(proof)
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(publicInputs)
+
     try {
       return await groth16.verify(this.artifacts.vkey, snarkJSFormattedPublicInputs, snarkJSFormattedProof)
     } catch (error) {

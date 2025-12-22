@@ -1,9 +1,8 @@
 import type { SnarkjsProof } from 'snarkjs'
 
-import type { POICircuitInputs, POIPublicInputs, POISnarkjsFormattedCircuitInputs } from '../types/poi-types'
-import type { Proof } from '../types/transaction-types'
+import { numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../formatters/bytes'
 
-import { numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from './bytes'
+import type { POICircuitInputs, POIPublicInputs, POISnarkjsFormattedCircuitInputs, Proof } from './types'
 
 /**
  * Convert inputs to snarkJS format
