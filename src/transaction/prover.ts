@@ -1,7 +1,7 @@
 import type { SnarkjsProof } from 'snarkjs'
 import { curves, groth16 } from 'snarkjs'
 
-import type { BaseProver } from '../provers/base-prover'
+import type { BaseProver } from '../core/base-prover'
 
 import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatter'
 import type {

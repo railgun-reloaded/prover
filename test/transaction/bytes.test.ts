@@ -5,7 +5,7 @@ import {
   numberStringToUint8Array,
   uint8ArrayToHexString,
   uint8ArrayToNumberString
-} from '../../src/formatters/bytes'
+} from '../../src/core/bytes'
 
 // ============================================================================
 // uint8ArrayToHexString Tests

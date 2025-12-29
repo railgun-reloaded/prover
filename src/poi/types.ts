@@ -1,4 +1,4 @@
-import type { Proof, ProverArtifacts } from '../types/types'
+import type { Proof, ProverArtifacts } from '../types'
 
 type POIPublicInputs = {
   proof: Proof;

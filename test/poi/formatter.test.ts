@@ -1,7 +1,7 @@
 /* eslint-disable jsdoc/require-jsdoc */import { test } from 'brittle'
 import type { SnarkjsProof } from 'snarkjs'
 
-import { numberStringToUint8Array, uint8ArrayToNumberString } from '../../src/formatters/bytes'
+import { numberStringToUint8Array, uint8ArrayToNumberString } from '../../src/core/bytes'
 import {
   extractPublicInputsFromCircuitInputs,
   snarkJSToStandardProof,

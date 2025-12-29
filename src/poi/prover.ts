@@ -1,8 +1,8 @@
 import type { SnarkjsProof } from 'snarkjs'
 import { curves, groth16 } from 'snarkjs'
 
-import { numberStringToUint8Array } from '../formatters/bytes'
-import type { BaseProver } from '../provers/base-prover'
+import type { BaseProver } from '../core/base-prover'
+import { numberStringToUint8Array } from '../core/bytes'
 
 import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatter'
 import type { POICircuitInputs, POIPublicInputs, Proof, ProverArtifacts } from './types'

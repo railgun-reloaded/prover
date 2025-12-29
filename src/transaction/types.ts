@@ -1,4 +1,4 @@
-import type { Proof, ProverArtifacts, VKey } from '../types/types'
+import type { Proof, ProverArtifacts, VKey } from '../types'
 /**
  * Standard representation of circuit inputs
  */
