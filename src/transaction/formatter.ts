@@ -1,6 +1,6 @@
 import type { SnarkjsProof } from 'snarkjs'
 
-import { numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../core/bytes'
+import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../core/bytes'
 
 import type { Proof, SnarkJSCircuitInputFormat, TransactionCircuitInputs, TransactionPublicInputs, } from './types'
 
@@ -25,6 +25,33 @@ function standardToSnarkJSInput (circuitInputs: TransactionCircuitInputs): Snark
     nullifyingKey: uint8ArrayToHexString(circuitInputs.nullifyingKey),
     npkOut: circuitInputs.outputTXOs.map(txo => uint8ArrayToHexString(txo.npk)),
     valueOut: circuitInputs.outputTXOs.map(txo => txo.value.toString()),
+  }
+}
+/**
+ * Convert snarkJS formatted inputs back to standard TransactionCircuitInputs
+ * @param snarkJSInput - Formatted snarkJS inputs
+ * @returns Standard circuit inputs with Uint8Arrays and BigInts
+ */
+function snarkJSToStandardInput (snarkJSInput: SnarkJSCircuitInputFormat): TransactionCircuitInputs {
+  return {
+    merkleRoot: hexStringToUint8Array(snarkJSInput.merkleRoot),
+    boundParamsHash: hexStringToUint8Array(snarkJSInput.boundParamsHash),
+    token: hexStringToUint8Array(snarkJSInput.token),
+    nullifyingKey: hexStringToUint8Array(snarkJSInput.nullifyingKey),
+    publicKey: snarkJSInput.publicKey.map(hexStringToUint8Array),
+    signature: snarkJSInput.signature.map(hexStringToUint8Array),
+    inputTXOs: snarkJSInput.nullifiers.map((_, i) => ({
+      nullifier: hexStringToUint8Array(snarkJSInput.nullifiers[i]!),
+      randomIn: hexStringToUint8Array(snarkJSInput.randomIn[i]!),
+      valueIn: BigInt(snarkJSInput.valueIn[i]!),
+      merkleleafPosition: Number(snarkJSInput.leavesIndices[i]),
+      pathElements: snarkJSInput.pathElements[i]!.map(hexStringToUint8Array),
+    })),
+    outputTXOs: snarkJSInput.commitmentsOut.map((_, i) => ({
+      commitment: hexStringToUint8Array(snarkJSInput.commitmentsOut[i]!),
+      npk: hexStringToUint8Array(snarkJSInput.npkOut[i]!),
+      value: BigInt(snarkJSInput.valueOut[i]!),
+    })),
   }
 }
 
@@ -90,4 +117,4 @@ function standardToSnarkJSPublicInputs (publicInputs: TransactionPublicInputs) :
   ]
 }
 
-export { standardToSnarkJSInput, snarkJSToStandardProof, extractPublicInputsFromCircuitInputs, standardToSnarkJSProof, standardToSnarkJSPublicInputs }
+export { standardToSnarkJSInput, snarkJSToStandardProof, extractPublicInputsFromCircuitInputs, standardToSnarkJSProof, standardToSnarkJSPublicInputs, snarkJSToStandardInput }
