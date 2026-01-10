@@ -6,6 +6,8 @@ declare module 'snarkjs' {
     protocol: 'groth16';
   }
 
+  type PublicSignals = string[];
+
   interface SNARK {
     proof: SnarkjsProof;
     publicSignals: PublicSignals;
