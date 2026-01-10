@@ -53,5 +53,18 @@ function numberStringToUint8Array (ns: string, length: number): Uint8Array {
 
   return arrayToByteLength(byteArray, length)
 }
+/**
+ * Converts a hex string to a Uint8Array
+ * @param hex - The hex string (with or without 0x prefix)
+ * @returns - Unit8Array representation of hexString
+ */
+function hexStringToUint8Array (hex: string): Uint8Array {
+  const cleanHex = hex.startsWith('0x') ? hex.slice(2) : hex
 
-export { uint8ArrayToHexString, uint8ArrayToNumberString, arrayToByteLength, numberStringToUint8Array }
+  // Ensure the hex string has an even length
+  const parity = cleanHex.length % 2 !== 0 ? '0' + cleanHex : cleanHex
+
+  return Uint8Array.from(Buffer.from(parity, 'hex'))
+}
+
+export { hexStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString, arrayToByteLength, numberStringToUint8Array }
