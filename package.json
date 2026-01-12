@@ -17,6 +17,7 @@
   "scripts": {
     "pretest": "npm run build",
     "test": "NODE_OPTIONS=--enable-source-maps brittle --coverage test/**/*.js",
+    "test:adapter": "npm run build && NODE_OPTIONS=--enable-source-maps brittle test/adapter/**/*.js",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "build": "tsc --build",
