@@ -4,6 +4,7 @@ import type { SnarkjsProof } from 'snarkjs'
 import { numberStringToUint8Array, uint8ArrayToNumberString } from '../../src/core/bytes'
 import {
   extractPublicInputsFromCircuitInputs,
+  snarkJSToStandardInput,
   snarkJSToStandardProof,
   standardToSnarkJSInput,
   standardToSnarkJSProof,
@@ -185,6 +186,363 @@ test('standardToSnarkJSInput: round-trip hex conversion preserves values', (asse
   // Convert back and verify
   const backToNumber = BigInt(result.anyRailgunTxidMerklerootAfterTransaction).toString()
   assert.is(backToNumber, '123')
+})
+
+// ============================================================================
+// snarkJSToStandardInput Tests
+// ============================================================================
+
+test('snarkJSToStandardInput: converts hex strings to Uint8Array', (assert) => {
+  const snarkjsInput = {
+    anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
+    poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
+    boundParamsHash: '0x00000000000000000000000000000000000000000000000000000000000001c8',
+    nullifiers: ['0x000000000000000000000000000000000000000000000000000000000000006f'],
+    commitmentsOut: ['0x000000000000000000000000000000000000000000000000000000000000014d'],
+    spendingPublicKey: ['0x000000000000000000000000000000000000000000000000000000000000022b'],
+    nullifyingKey: '0x0000000000000000000000000000000000000000000000000000000000000309',
+    token: '0x0000000000000000000000000000000000000000000000000000000000000378',
+    randomsIn: ['0x000000000000000000000000000000000000000000000000000000000000000b'],
+    valuesIn: ['1000'],
+    utxoPositionsIn: [1],
+    utxoTreeIn: 0,
+    npksOut: ['0x0000000000000000000000000000000000000000000000000000000000000021'],
+    valuesOut: ['500'],
+    utxoBatchGlobalStartPositionOut: '0x00000000000000000000000000000000000000000000000000000000000003e7',
+    railgunTxidIfHasUnshield: '0x0000000000000000000000000000000000000000000000000000000000000457',
+    railgunTxidMerkleProofIndices: 5,
+    railgunTxidMerkleProofPathElements: ['0x0000000000000000000000000000000000000000000000000000000000000037'],
+    poiInMerkleProofIndices: ['0'],
+    poiInMerkleProofPathElements: [['0x000000000000000000000000000000000000000000000000000000000000004d']]
+  }
+
+  const result = snarkJSToStandardInput(snarkjsInput)
+
+  assert.ok(result.anyRailgunTxidMerklerootAfterTransaction instanceof Uint8Array)
+  assert.is(result.anyRailgunTxidMerklerootAfterTransaction.length, 32)
+  assert.ok(result.boundParamsHash instanceof Uint8Array)
+  assert.ok(result.token instanceof Uint8Array)
+  assert.ok(result.nullifyingKey instanceof Uint8Array)
+})
+
+test('snarkJSToStandardInput: converts arrays of hex strings to arrays of Uint8Array', (assert) => {
+  const snarkjsInput = {
+    anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
+    poiMerkleroots: [
+      '0x0000000000000000000000000000000000000000000000000000000000000064',
+      '0x00000000000000000000000000000000000000000000000000000000000000c8'
+    ],
+    boundParamsHash: '0x00000000000000000000000000000000000000000000000000000000000001c8',
+    nullifiers: [
+      '0x000000000000000000000000000000000000000000000000000000000000006f',
+      '0x00000000000000000000000000000000000000000000000000000000000000de'
+    ],
+    commitmentsOut: [
+      '0x000000000000000000000000000000000000000000000000000000000000014d',
+      '0x00000000000000000000000000000000000000000000000000000000000001bc'
+    ],
+    spendingPublicKey: [
+      '0x000000000000000000000000000000000000000000000000000000000000022b',
+      '0x000000000000000000000000000000000000000000000000000000000000029a'
+    ],
+    nullifyingKey: '0x0000000000000000000000000000000000000000000000000000000000000309',
+    token: '0x0000000000000000000000000000000000000000000000000000000000000378',
+    randomsIn: [
+      '0x000000000000000000000000000000000000000000000000000000000000000b',
+      '0x0000000000000000000000000000000000000000000000000000000000000016'
+    ],
+    valuesIn: ['1000', '2000'],
+    utxoPositionsIn: [1, 2],
+    utxoTreeIn: 0,
+    npksOut: [
+      '0x0000000000000000000000000000000000000000000000000000000000000021',
+      '0x000000000000000000000000000000000000000000000000000000000000002c'
+    ],
+    valuesOut: ['500', '1500'],
+    utxoBatchGlobalStartPositionOut: '0x00000000000000000000000000000000000000000000000000000000000003e7',
+    railgunTxidIfHasUnshield: '0x0000000000000000000000000000000000000000000000000000000000000457',
+    railgunTxidMerkleProofIndices: 5,
+    railgunTxidMerkleProofPathElements: [
+      '0x0000000000000000000000000000000000000000000000000000000000000037',
+      '0x0000000000000000000000000000000000000000000000000000000000000042'
+    ],
+    poiInMerkleProofIndices: ['0', '1'],
+    poiInMerkleProofPathElements: [
+      ['0x000000000000000000000000000000000000000000000000000000000000004d'],
+      ['0x000000000000000000000000000000000000000000000000000000000000006e']
+    ]
+  }
+
+  const result = snarkJSToStandardInput(snarkjsInput)
+
+  assert.is(result.poiMerkleroots.length, 2)
+  assert.ok(result.poiMerkleroots.every(m => m instanceof Uint8Array && m.length === 32))
+
+  assert.is(result.nullifiers.length, 2)
+  assert.ok(result.nullifiers.every(n => n instanceof Uint8Array && n.length === 32))
+
+  assert.is(result.commitmentsOut.length, 2)
+  assert.ok(result.commitmentsOut.every(c => c instanceof Uint8Array && c.length === 32))
+
+  assert.is(result.spendingPublicKey.length, 2)
+  assert.ok(result.spendingPublicKey.every(pk => pk instanceof Uint8Array && pk.length === 32))
+})
+
+test('snarkJSToStandardInput: converts string values to BigInt', (assert) => {
+  const snarkjsInput = {
+    anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
+    poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
+    boundParamsHash: '0x00000000000000000000000000000000000000000000000000000000000001c8',
+    nullifiers: ['0x000000000000000000000000000000000000000000000000000000000000006f'],
+    commitmentsOut: ['0x000000000000000000000000000000000000000000000000000000000000014d'],
+    spendingPublicKey: ['0x000000000000000000000000000000000000000000000000000000000000022b'],
+    nullifyingKey: '0x0000000000000000000000000000000000000000000000000000000000000309',
+    token: '0x0000000000000000000000000000000000000000000000000000000000000378',
+    randomsIn: ['0x000000000000000000000000000000000000000000000000000000000000000b'],
+    valuesIn: ['1000', '2000'],
+    utxoPositionsIn: [1],
+    utxoTreeIn: 0,
+    npksOut: ['0x0000000000000000000000000000000000000000000000000000000000000021'],
+    valuesOut: ['500', '1500'],
+    utxoBatchGlobalStartPositionOut: '0x00000000000000000000000000000000000000000000000000000000000003e7',
+    railgunTxidIfHasUnshield: '0x0000000000000000000000000000000000000000000000000000000000000457',
+    railgunTxidMerkleProofIndices: 5,
+    railgunTxidMerkleProofPathElements: ['0x0000000000000000000000000000000000000000000000000000000000000037'],
+    poiInMerkleProofIndices: ['0'],
+    poiInMerkleProofPathElements: [['0x000000000000000000000000000000000000000000000000000000000000004d']]
+  }
+
+  const result = snarkJSToStandardInput(snarkjsInput)
+
+  assert.is(result.valuesIn.length, 2)
+  assert.is(typeof result.valuesIn[0], 'bigint')
+  assert.is(result.valuesIn[0]!.toString(), '1000')
+  assert.is(result.valuesIn[1]!.toString(), '2000')
+
+  assert.is(result.valuesOut.length, 2)
+  assert.is(typeof result.valuesOut[0], 'bigint')
+  assert.is(result.valuesOut[0]!.toString(), '500')
+  assert.is(result.valuesOut[1]!.toString(), '1500')
+})
+
+test('snarkJSToStandardInput: preserves number fields', (assert) => {
+  const snarkjsInput = {
+    anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
+    poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
+    boundParamsHash: '0x00000000000000000000000000000000000000000000000000000000000001c8',
+    nullifiers: ['0x000000000000000000000000000000000000000000000000000000000000006f'],
+    commitmentsOut: ['0x000000000000000000000000000000000000000000000000000000000000014d'],
+    spendingPublicKey: ['0x000000000000000000000000000000000000000000000000000000000000022b'],
+    nullifyingKey: '0x0000000000000000000000000000000000000000000000000000000000000309',
+    token: '0x0000000000000000000000000000000000000000000000000000000000000378',
+    randomsIn: ['0x000000000000000000000000000000000000000000000000000000000000000b'],
+    valuesIn: ['1000'],
+    utxoPositionsIn: [1, 2, 3],
+    utxoTreeIn: 5,
+    npksOut: ['0x0000000000000000000000000000000000000000000000000000000000000021'],
+    valuesOut: ['500'],
+    utxoBatchGlobalStartPositionOut: '0x00000000000000000000000000000000000000000000000000000000000003e7',
+    railgunTxidIfHasUnshield: '0x0000000000000000000000000000000000000000000000000000000000000457',
+    railgunTxidMerkleProofIndices: 10,
+    railgunTxidMerkleProofPathElements: ['0x0000000000000000000000000000000000000000000000000000000000000037'],
+    poiInMerkleProofIndices: ['0', '1', '2'],
+    poiInMerkleProofPathElements: [['0x000000000000000000000000000000000000000000000000000000000000004d']]
+  }
+
+  const result = snarkJSToStandardInput(snarkjsInput)
+
+  assert.is(typeof result.utxoPositionsIn[0], 'number')
+  assert.is(result.utxoPositionsIn[0], 1)
+  assert.is(result.utxoPositionsIn[1], 2)
+  assert.is(result.utxoPositionsIn[2], 3)
+  assert.is(typeof result.utxoTreeIn, 'number')
+  assert.is(result.utxoTreeIn, 5)
+  assert.is(typeof result.railgunTxidMerkleProofIndices, 'number')
+  assert.is(result.railgunTxidMerkleProofIndices, 10)
+})
+
+test('snarkJSToStandardInput: converts poiInMerkleProofIndices from strings to numbers', (assert) => {
+  const snarkjsInput = {
+    anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
+    poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
+    boundParamsHash: '0x00000000000000000000000000000000000000000000000000000000000001c8',
+    nullifiers: ['0x000000000000000000000000000000000000000000000000000000000000006f'],
+    commitmentsOut: ['0x000000000000000000000000000000000000000000000000000000000000014d'],
+    spendingPublicKey: ['0x000000000000000000000000000000000000000000000000000000000000022b'],
+    nullifyingKey: '0x0000000000000000000000000000000000000000000000000000000000000309',
+    token: '0x0000000000000000000000000000000000000000000000000000000000000378',
+    randomsIn: ['0x000000000000000000000000000000000000000000000000000000000000000b'],
+    valuesIn: ['1000'],
+    utxoPositionsIn: [1],
+    utxoTreeIn: 0,
+    npksOut: ['0x0000000000000000000000000000000000000000000000000000000000000021'],
+    valuesOut: ['500'],
+    utxoBatchGlobalStartPositionOut: '0x00000000000000000000000000000000000000000000000000000000000003e7',
+    railgunTxidIfHasUnshield: '0x0000000000000000000000000000000000000000000000000000000000000457',
+    railgunTxidMerkleProofIndices: 5,
+    railgunTxidMerkleProofPathElements: ['0x0000000000000000000000000000000000000000000000000000000000000037'],
+    poiInMerkleProofIndices: ['0', '1', '2'],
+    poiInMerkleProofPathElements: [['0x000000000000000000000000000000000000000000000000000000000000004d']]
+  }
+
+  const result = snarkJSToStandardInput(snarkjsInput)
+
+  assert.is(result.poiInMerkleProofIndices.length, 3)
+  assert.is(typeof result.poiInMerkleProofIndices[0], 'number')
+  assert.is(result.poiInMerkleProofIndices[0], 0)
+  assert.is(result.poiInMerkleProofIndices[1], 1)
+  assert.is(result.poiInMerkleProofIndices[2], 2)
+})
+
+test('snarkJSToStandardInput: converts nested arrays correctly', (assert) => {
+  const snarkjsInput = {
+    anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
+    poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
+    boundParamsHash: '0x00000000000000000000000000000000000000000000000000000000000001c8',
+    nullifiers: ['0x000000000000000000000000000000000000000000000000000000000000006f'],
+    commitmentsOut: ['0x000000000000000000000000000000000000000000000000000000000000014d'],
+    spendingPublicKey: ['0x000000000000000000000000000000000000000000000000000000000000022b'],
+    nullifyingKey: '0x0000000000000000000000000000000000000000000000000000000000000309',
+    token: '0x0000000000000000000000000000000000000000000000000000000000000378',
+    randomsIn: ['0x000000000000000000000000000000000000000000000000000000000000000b'],
+    valuesIn: ['1000'],
+    utxoPositionsIn: [1],
+    utxoTreeIn: 0,
+    npksOut: ['0x0000000000000000000000000000000000000000000000000000000000000021'],
+    valuesOut: ['500'],
+    utxoBatchGlobalStartPositionOut: '0x00000000000000000000000000000000000000000000000000000000000003e7',
+    railgunTxidIfHasUnshield: '0x0000000000000000000000000000000000000000000000000000000000000457',
+    railgunTxidMerkleProofIndices: 5,
+    railgunTxidMerkleProofPathElements: [
+      '0x0000000000000000000000000000000000000000000000000000000000000037',
+      '0x0000000000000000000000000000000000000000000000000000000000000042'
+    ],
+    poiInMerkleProofIndices: ['0'],
+    poiInMerkleProofPathElements: [
+      ['0x000000000000000000000000000000000000000000000000000000000000004d', '0x0000000000000000000000000000000000000000000000000000000000000058'],
+      ['0x0000000000000000000000000000000000000000000000000000000000000063', '0x000000000000000000000000000000000000000000000000000000000000006e']
+    ]
+  }
+
+  const result = snarkJSToStandardInput(snarkjsInput)
+
+  assert.is(result.poiInMerkleProofPathElements.length, 2)
+  assert.ok(result.poiInMerkleProofPathElements[0])
+  assert.is(result.poiInMerkleProofPathElements[0]!.length, 2)
+  assert.ok(result.poiInMerkleProofPathElements[0]!.every(e => e instanceof Uint8Array && e.length === 32))
+  assert.ok(result.poiInMerkleProofPathElements[1])
+  assert.is(result.poiInMerkleProofPathElements[1]!.length, 2)
+  assert.ok(result.poiInMerkleProofPathElements[1]!.every(e => e instanceof Uint8Array && e.length === 32))
+})
+
+test('snarkJSToStandardInput: handles empty arrays', (assert) => {
+  const snarkjsInput = {
+    anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
+    poiMerkleroots: [],
+    boundParamsHash: '0x00000000000000000000000000000000000000000000000000000000000001c8',
+    nullifiers: [],
+    commitmentsOut: [],
+    spendingPublicKey: ['0x000000000000000000000000000000000000000000000000000000000000022b'],
+    nullifyingKey: '0x0000000000000000000000000000000000000000000000000000000000000309',
+    token: '0x0000000000000000000000000000000000000000000000000000000000000378',
+    randomsIn: [],
+    valuesIn: [],
+    utxoPositionsIn: [],
+    utxoTreeIn: 0,
+    npksOut: [],
+    valuesOut: [],
+    utxoBatchGlobalStartPositionOut: '0x00000000000000000000000000000000000000000000000000000000000003e7',
+    railgunTxidIfHasUnshield: '0x0000000000000000000000000000000000000000000000000000000000000457',
+    railgunTxidMerkleProofIndices: 5,
+    railgunTxidMerkleProofPathElements: [],
+    poiInMerkleProofIndices: [],
+    poiInMerkleProofPathElements: []
+  }
+
+  const result = snarkJSToStandardInput(snarkjsInput)
+
+  assert.is(result.nullifiers.length, 0)
+  assert.is(result.commitmentsOut.length, 0)
+  assert.is(result.valuesIn.length, 0)
+  assert.is(result.valuesOut.length, 0)
+  assert.is(result.poiInMerkleProofPathElements.length, 0)
+})
+
+test('snarkJSToStandardInput: round-trip conversion preserves values', (assert) => {
+  const original = createMockCircuitInputs()
+  const snarkjsFormat = standardToSnarkJSInput(original)
+  const backToStandard = snarkJSToStandardInput(snarkjsFormat)
+
+  assert.is(uint8ArrayToNumberString(backToStandard.anyRailgunTxidMerklerootAfterTransaction), '123')
+  assert.is(uint8ArrayToNumberString(backToStandard.boundParamsHash), '456')
+  assert.is(backToStandard.valuesIn[0]!.toString(), '1000')
+  assert.is(backToStandard.valuesIn[1]!.toString(), '2000')
+  assert.is(backToStandard.utxoTreeIn, 0)
+  assert.is(backToStandard.railgunTxidMerkleProofIndices, 5)
+})
+
+test('snarkJSToStandardInput: handles large BigInt values', (assert) => {
+  const largeValue = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
+  const snarkjsInput = {
+    anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
+    poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
+    boundParamsHash: '0x00000000000000000000000000000000000000000000000000000000000001c8',
+    nullifiers: ['0x000000000000000000000000000000000000000000000000000000000000006f'],
+    commitmentsOut: ['0x000000000000000000000000000000000000000000000000000000000000014d'],
+    spendingPublicKey: ['0x000000000000000000000000000000000000000000000000000000000000022b'],
+    nullifyingKey: '0x0000000000000000000000000000000000000000000000000000000000000309',
+    token: '0x0000000000000000000000000000000000000000000000000000000000000378',
+    randomsIn: ['0x000000000000000000000000000000000000000000000000000000000000000b'],
+    valuesIn: [largeValue],
+    utxoPositionsIn: [1],
+    utxoTreeIn: 0,
+    npksOut: ['0x0000000000000000000000000000000000000000000000000000000000000021'],
+    valuesOut: [largeValue],
+    utxoBatchGlobalStartPositionOut: '0x00000000000000000000000000000000000000000000000000000000000003e7',
+    railgunTxidIfHasUnshield: '0x0000000000000000000000000000000000000000000000000000000000000457',
+    railgunTxidMerkleProofIndices: 5,
+    railgunTxidMerkleProofPathElements: ['0x0000000000000000000000000000000000000000000000000000000000000037'],
+    poiInMerkleProofIndices: ['0'],
+    poiInMerkleProofPathElements: [['0x000000000000000000000000000000000000000000000000000000000000004d']]
+  }
+
+  const result = snarkJSToStandardInput(snarkjsInput)
+
+  assert.is(result.valuesIn[0]!.toString(), largeValue)
+  assert.is(result.valuesOut[0]!.toString(), largeValue)
+})
+
+test('snarkJSToStandardInput: handles zero values', (assert) => {
+  const snarkjsInput = {
+    anyRailgunTxidMerklerootAfterTransaction: '0x' + '00'.repeat(32),
+    poiMerkleroots: ['0x' + '00'.repeat(32)],
+    boundParamsHash: '0x' + '00'.repeat(32),
+    nullifiers: ['0x' + '00'.repeat(32)],
+    commitmentsOut: ['0x' + '00'.repeat(32)],
+    spendingPublicKey: ['0x' + '00'.repeat(32)],
+    nullifyingKey: '0x' + '00'.repeat(32),
+    token: '0x' + '00'.repeat(32),
+    randomsIn: ['0x' + '00'.repeat(32)],
+    valuesIn: ['0'],
+    utxoPositionsIn: [0],
+    utxoTreeIn: 0,
+    npksOut: ['0x' + '00'.repeat(32)],
+    valuesOut: ['0'],
+    utxoBatchGlobalStartPositionOut: '0x' + '00'.repeat(32),
+    railgunTxidIfHasUnshield: '0x' + '00'.repeat(32),
+    railgunTxidMerkleProofIndices: 0,
+    railgunTxidMerkleProofPathElements: ['0x' + '00'.repeat(32)],
+    poiInMerkleProofIndices: ['0'],
+    poiInMerkleProofPathElements: [['0x' + '00'.repeat(32)]]
+  }
+
+  const result = snarkJSToStandardInput(snarkjsInput)
+
+  assert.is(uint8ArrayToNumberString(result.token), '0')
+  assert.is(result.valuesIn[0]!.toString(), '0')
+  assert.is(result.valuesOut[0]!.toString(), '0')
+  assert.is(result.utxoTreeIn, 0)
+  assert.is(result.railgunTxidMerkleProofIndices, 0)
 })
 
 // ============================================================================
