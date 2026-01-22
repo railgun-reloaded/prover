@@ -25,21 +25,28 @@ declare module 'snarkjs' {
     IC: (string | bigint)[][];
   }
 
+
+  interface CurveOptions {
+    [key: string]: any;
+  }
+
   namespace groth16 {
-    declare function fullProve (
+
+    function fullProve(
       inputs: unknown,
-      wasm: Uint8Array,
-      zkey: Uint8Array,
+      wasm: Uint8Array | string,
+      zkey: Uint8Array | string,
       logger?: unknown,
       wtnsCalcOptions?: any,
       proverOptions?: { singleThread?: boolean },
-    ): Promise<SNARK>
-    declare function verify (
+    ): Promise<SNARK>;
+
+    function verify(
       vkVerifier: VKey,
       publicSignals: unknown,
       proof: SnarkjsProof,
       logger?: unknown,
-    ): Promise<boolean>
+    ): Promise<boolean>;
   }
 
   interface Curve {
@@ -47,11 +54,12 @@ declare module 'snarkjs' {
   }
 
   namespace curves {
-    declare function getCurveFromName (name: string, options?: CurveOptions): Promise<Curve>
+
+    function getCurveFromName(name: string, options?: CurveOptions): Promise<Curve>;
   }
 
-  type Curves = 'bn128'
+  type Curves = 'bn128' | 'bls12381';
 
-  export type { SnarkjsProof, SNARK, VKey, Curves }
-  export { groth16, curves }
+  export type { SnarkjsProof, SNARK, VKey, Curves, CurveOptions };
+  export { groth16, curves };
 }
