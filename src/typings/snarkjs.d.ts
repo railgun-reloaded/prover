@@ -1,19 +1,20 @@
 declare module 'snarkjs' {
-  interface SnarkjsProof {
+  // Define types at the module level
+  export interface SnarkjsProof {
     pi_a: [string, string];
     pi_b: [[string, string], [string, string]];
     pi_c: [string, string];
     protocol: 'groth16';
   }
 
-  type PublicSignals = string[];
+  export type PublicSignals = string[];
 
-  interface SNARK {
+  export interface SNARK {
     proof: SnarkjsProof;
     publicSignals: PublicSignals;
   }
 
-  interface VKey {
+  export interface VKey {
     protocol: 'groth16';
     curve: Curves;
     nPublic: number;
@@ -25,13 +26,17 @@ declare module 'snarkjs' {
     IC: (string | bigint)[][];
   }
 
-
-  interface CurveOptions {
+  export interface CurveOptions {
     [key: string]: any;
   }
 
-  namespace groth16 {
+  export type Curves = 'bn128' | 'bls12381';
 
+  export interface Curve {
+    terminate: () => Promise<void>;
+  }
+
+  export namespace groth16 {
     function fullProve(
       inputs: unknown,
       wasm: Uint8Array | string,
@@ -49,17 +54,7 @@ declare module 'snarkjs' {
     ): Promise<boolean>;
   }
 
-  interface Curve {
-    terminate: () => Promise<void>;
-  }
-
-  namespace curves {
-
+  export namespace curves {
     function getCurveFromName(name: string, options?: CurveOptions): Promise<Curve>;
   }
-
-  type Curves = 'bn128' | 'bls12381';
-
-  export type { SnarkjsProof, SNARK, VKey, Curves, CurveOptions };
-  export { groth16, curves };
 }
