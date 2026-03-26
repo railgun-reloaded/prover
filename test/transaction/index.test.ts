@@ -206,14 +206,12 @@ test('snarkJSToStandardInput: handles multiple inputTXOs and outputTXOs', (asser
   assert.ok(result.inputTXOs.length >= 2, 'should handle multiple inputs')
   assert.ok(result.outputTXOs.length >= 2, 'should handle multiple outputs')
 
-
   result.inputTXOs.forEach(txo => {
     assert.ok(txo.nullifier instanceof Uint8Array)
     assert.ok(txo.randomIn instanceof Uint8Array)
     assert.is(typeof txo.valueIn, 'bigint')
     assert.ok(Array.isArray(txo.pathElements))
   })
-
 
   result.outputTXOs.forEach(txo => {
     assert.ok(txo.commitment instanceof Uint8Array)
@@ -229,10 +227,8 @@ test('snarkJSToStandardInput: round-trip conversion preserves values', (assert) 
   const snarkjsFormat = standardToSnarkJSInput(original.inputs)
   const backToStandard = snarkJSToStandardInput(snarkjsFormat)
 
-
   assert.is(backToStandard.inputTXOs.length, original.inputs.inputTXOs.length)
   assert.is(backToStandard.outputTXOs.length, original.inputs.outputTXOs.length)
-
 
   original.inputs.inputTXOs.forEach((txo, i) => {
     assert.is(backToStandard.inputTXOs[i]!.valueIn.toString(), txo.valueIn.toString())

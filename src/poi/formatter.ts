@@ -2,7 +2,7 @@ import type { SnarkjsProof } from 'snarkjs'
 
 import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../core/bytes'
 
-import type { POICircuitInputs, POIPublicInputs, POISnarkjsFormattedCircuitInputs, Proof } from './types'
+import type { POIBigintInputs, POICircuitInputs, POIPublicInputs, POISnarkjsFormattedCircuitInputs, Proof } from './types'
 
 /**
  * Convert inputs to snarkJS format
@@ -134,4 +134,41 @@ function standardToSnarkJSPublicInputs (publicInputs: POIPublicInputs) : string[
   ]
 }
 
-export { standardToSnarkJSInput, snarkJSToStandardProof, extractPublicInputsFromCircuitInputs, standardToSnarkJSProof, standardToSnarkJSPublicInputs, snarkJSToStandardInput }
+/**
+ * Convert bigint-based engine inputs to standard Uint8Array POI circuit inputs.
+ * @param inputs - Bigint-based inputs matching the engine's FormattedCircuitInputsPOI.
+ * @returns Standard POICircuitInputs with Uint8Array field elements.
+ */
+function bigintToPOICircuitInputs (inputs: POIBigintInputs): POICircuitInputs {
+  /**
+   * Convert a bigint field element to a 32-byte Uint8Array.
+   * @param val - Bigint field element.
+   * @returns 32-byte Uint8Array representation of the field element.
+   */
+  const toBytes = (val: bigint) => numberStringToUint8Array(val.toString(), 32)
+
+  return {
+    anyRailgunTxidMerklerootAfterTransaction: toBytes(inputs.anyRailgunTxidMerklerootAfterTransaction),
+    poiMerkleroots: inputs.poiMerkleroots.map(toBytes),
+    boundParamsHash: toBytes(inputs.boundParamsHash),
+    nullifiers: inputs.nullifiers.map(toBytes),
+    commitmentsOut: inputs.commitmentsOut.map(toBytes),
+    spendingPublicKey: inputs.spendingPublicKey.map(toBytes),
+    nullifyingKey: toBytes(inputs.nullifyingKey),
+    token: toBytes(inputs.token),
+    randomsIn: inputs.randomsIn.map(toBytes),
+    valuesIn: inputs.valuesIn,
+    utxoPositionsIn: inputs.utxoPositionsIn.map(Number),
+    utxoTreeIn: Number(inputs.utxoTreeIn),
+    npksOut: inputs.npksOut.map(toBytes),
+    valuesOut: inputs.valuesOut,
+    utxoBatchGlobalStartPositionOut: toBytes(inputs.utxoBatchGlobalStartPositionOut),
+    railgunTxidIfHasUnshield: toBytes(inputs.railgunTxidIfHasUnshield),
+    railgunTxidMerkleProofIndices: Number(inputs.railgunTxidMerkleProofIndices),
+    railgunTxidMerkleProofPathElements: inputs.railgunTxidMerkleProofPathElements.map(toBytes),
+    poiInMerkleProofIndices: inputs.poiInMerkleProofIndices.map(Number),
+    poiInMerkleProofPathElements: inputs.poiInMerkleProofPathElements.map(path => path.map(toBytes)),
+  }
+}
+
+export { standardToSnarkJSInput, snarkJSToStandardProof, extractPublicInputsFromCircuitInputs, standardToSnarkJSProof, standardToSnarkJSPublicInputs, snarkJSToStandardInput, bigintToPOICircuitInputs }

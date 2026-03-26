@@ -34,7 +34,9 @@ function uint8ArrayToNumberString (array: Uint8Array) : string {
 function arrayToByteLength (byteArray: Uint8Array, length: number) : Uint8Array {
   if (byteArray.length > length) throw new Error('BigInt byte size is larger than length')
 
-  return new Uint8Array(new Array(length - byteArray.length).concat(...byteArray))
+  const result = new Uint8Array(length)
+  result.set(byteArray, length - byteArray.length)
+  return result
 }
 /**
  * Convert number string to Uint8Array

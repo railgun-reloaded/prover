@@ -2,7 +2,7 @@ import type { SnarkjsProof } from 'snarkjs'
 
 import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../core/bytes'
 
-import type { Proof, SnarkJSCircuitInputFormat, TransactionCircuitInputs, TransactionPublicInputs, } from './types'
+import type { Proof, SnarkJSCircuitInputFormat, TransactionBigintInputs, TransactionCircuitInputs, TransactionPublicInputs } from './types'
 
 /**
  * Convert inputs to snarkJS format
@@ -117,4 +117,42 @@ function standardToSnarkJSPublicInputs (publicInputs: TransactionPublicInputs) :
   ]
 }
 
-export { standardToSnarkJSInput, snarkJSToStandardProof, extractPublicInputsFromCircuitInputs, standardToSnarkJSProof, standardToSnarkJSPublicInputs, snarkJSToStandardInput }
+/**
+ * Convert bigint-based engine inputs to standard Uint8Array circuit inputs.
+ * Handles the flat pathElements array by deriving tree depth from input count.
+ * @param inputs - Bigint-based inputs matching the engine's FormattedCircuitInputsRailgun.
+ * @returns Standard TransactionCircuitInputs with Uint8Array field elements.
+ */
+function bigintToTransactionCircuitInputs (inputs: TransactionBigintInputs): TransactionCircuitInputs {
+  /**
+   * Convert a bigint field element to a 32-byte Uint8Array.
+   * @param val - Bigint field element.
+   * @returns 32-byte Uint8Array representation of the field element.
+   */
+  const toBytes = (val: bigint) => numberStringToUint8Array(val.toString(), 32)
+  const numInputs = inputs.leavesIndices.length
+  const treeDepth = numInputs > 0 ? inputs.pathElements.length / numInputs : 0
+
+  return {
+    merkleRoot: toBytes(inputs.merkleRoot),
+    boundParamsHash: toBytes(inputs.boundParamsHash),
+    token: toBytes(inputs.token),
+    nullifyingKey: toBytes(inputs.nullifyingKey),
+    publicKey: inputs.publicKey.map(toBytes),
+    signature: inputs.signature.map(toBytes),
+    inputTXOs: inputs.leavesIndices.map((leafIndex, i) => ({
+      nullifier: toBytes(inputs.nullifiers[i]!),
+      randomIn: toBytes(inputs.randomIn[i]!),
+      valueIn: inputs.valueIn[i]!,
+      merkleleafPosition: Number(leafIndex),
+      pathElements: inputs.pathElements.slice(i * treeDepth, (i + 1) * treeDepth).map(toBytes),
+    })),
+    outputTXOs: inputs.commitmentsOut.map((commitment, i) => ({
+      commitment: toBytes(commitment),
+      npk: toBytes(inputs.npkOut[i]!),
+      value: inputs.valueOut[i]!,
+    })),
+  }
+}
+
+export { standardToSnarkJSInput, snarkJSToStandardProof, extractPublicInputsFromCircuitInputs, standardToSnarkJSProof, standardToSnarkJSPublicInputs, snarkJSToStandardInput, bigintToTransactionCircuitInputs }

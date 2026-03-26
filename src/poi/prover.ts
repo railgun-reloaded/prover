@@ -12,9 +12,9 @@ import type { POICircuitInputs, POIPublicInputs, Proof, ProverArtifacts } from '
  */
 
 /**
- * A proof generator for transaction circuits using the SnarkJS library.
- * Implements zero-knowledge proof generation and verification for transaction validity,
- * ensuring that transactions satisfy circuit constraints without revealing private inputs.
+ * A proof generator for POI circuits using the SnarkJS library.
+ * Implements zero-knowledge proof generation and verification for Proof of Innocence,
+ * ensuring that transactions satisfy POI circuit constraints without revealing private inputs.
  */
 export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicInputs> {
   /**

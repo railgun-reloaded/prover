@@ -1,60 +1,105 @@
+/**
+ * Type declarations for snarkjs groth16 proof system.
+ * Declares the minimal subset of the snarkjs API used by this package.
+ */
 declare module 'snarkjs' {
-  // Define types at the module level
-  export interface SnarkjsProof {
-    pi_a: [string, string];
-    pi_b: [[string, string], [string, string]];
-    pi_c: [string, string];
-    protocol: 'groth16';
+  /**
+   * A groth16 proof in snarkjs wire format.
+   * pi_b coordinates are stored in reversed order relative to the standard representation.
+   */
+  type SnarkjsProof = {
+    pi_a: string[];
+    pi_b: string[][];
+    pi_c: string[];
+    protocol: string;
   }
 
-  export type PublicSignals = string[];
-
-  export interface SNARK {
+  /**
+   * Output of a successful fullProve call: the proof and its corresponding public signals.
+   */
+  type SNARK = {
     proof: SnarkjsProof;
-    publicSignals: PublicSignals;
+    publicSignals: string[];
   }
 
-  export interface VKey {
-    protocol: 'groth16';
-    curve: Curves;
+  /**
+   * Verification key as produced by the groth16 trusted setup.
+   */
+  type VKey = {
+    protocol: string;
+    curve: string;
     nPublic: number;
-    vk_alpha_1: (string | bigint)[];
-    vk_beta_2: (string | bigint)[][];
-    vk_gamma_2: (string | bigint)[][];
-    vk_delta_2: (string | bigint)[][];
-    vk_alphabeta_12: (string | bigint)[][][];
-    IC: (string | bigint)[][];
+    vk_alpha_1: string[];
+    vk_beta_2: string[][];
+    vk_gamma_2: string[][];
+    vk_delta_2: string[][];
+    vk_alphabeta_12: string[][][];
+    IC: string[][];
   }
 
-  export interface CurveOptions {
-    [key: string]: any;
+  /**
+   * A named elliptic curve instance returned by getCurveFromName.
+   * Holds WASM thread workers that must be explicitly terminated.
+   */
+  interface CurveInstance {
+    /**
+     * Terminate all background WASM worker threads for this curve.
+     */
+    terminate(): void;
   }
 
-  export type Curves = 'bn128' | 'bls12381';
-
-  export interface Curve {
-    terminate: () => Promise<void>;
-  }
-
-  export namespace groth16 {
-    function fullProve(
-      inputs: unknown,
-      wasm: Uint8Array | string,
-      zkey: Uint8Array | string,
+  /**
+   * snarkjs groth16 namespace — proof generation and verification.
+   */
+  const groth16: {
+    /**
+     * Generate a groth16 proof for the given circuit inputs.
+     * @param input - Circuit inputs as a key-value object.
+     * @param wasm - WASM circuit artifact.
+     * @param zkey - Proving key artifact.
+     * @param logger - Optional logger.
+     * @param wtnsCalcOptions - Optional witness calculation options.
+     * @param proverOptions - Optional prover options.
+     * @param proverOptions.singleThread - Whether to run in single-threaded mode.
+     * @returns SNARK containing the proof and public signals.
+     */
+    fullProve(
+      input: unknown,
+      wasm: Uint8Array,
+      zkey: Uint8Array,
       logger?: unknown,
-      wtnsCalcOptions?: any,
+      wtnsCalcOptions?: unknown,
       proverOptions?: { singleThread?: boolean },
     ): Promise<SNARK>;
 
-    function verify(
+    /**
+     * Verify a groth16 proof against a verification key and public signals.
+     * @param vkVerifier - The verification key.
+     * @param publicSignals - The public signals array.
+     * @param proof - The proof to verify.
+     * @param logger - Optional logger.
+     * @returns True if the proof is valid.
+     */
+    verify(
       vkVerifier: VKey,
-      publicSignals: unknown,
+      publicSignals: string[],
       proof: SnarkjsProof,
       logger?: unknown,
     ): Promise<boolean>;
   }
 
-  export namespace curves {
-    function getCurveFromName(name: string, options?: CurveOptions): Promise<Curve>;
+  /**
+   * snarkjs curves namespace — curve instance lifecycle management.
+   */
+  const curves: {
+    /**
+     * Get a curve instance by name, initialising WASM workers if necessary.
+     * @param name - The curve name (e.g. 'bn128').
+     * @returns The curve instance.
+     */
+    getCurveFromName(name: string): Promise<CurveInstance>;
   }
+
+  export type { SnarkjsProof, SNARK, VKey, CurveInstance }
+  export { groth16, curves }
 }

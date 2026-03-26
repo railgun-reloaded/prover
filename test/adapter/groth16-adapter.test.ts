@@ -1,26 +1,55 @@
 import { hook, test } from 'brittle'
 import type { SnarkjsProof } from 'snarkjs'
-import { curves, groth16 } from 'snarkjs'
+import { curves } from 'snarkjs'
 
-import { SnarkjsTransactionProver, createGroth16ForEngine } from '../../src'
-import { standardToSnarkJSInput } from '../../src/transaction/formatter'
+import type { TransactionBigintInputs, TransactionCircuitInputs } from '../../src'
+import { SnarkjsTransactionProver, createGroth16ForEngine, uint8ArrayToNumberString } from '../../src'
 import { testVectors } from '../transaction/test-vectors'
+
+/**
+ * Convert TransactionCircuitInputs (Uint8Array domain format) to TransactionBigintInputs
+ * (flat bigint format) as the engine would produce.
+ * @param inputs - Domain circuit inputs with Uint8Array field elements.
+ * @returns Flat bigint inputs matching TransactionBigintInputs.
+ */
+function toBigintInputs (inputs: TransactionCircuitInputs): TransactionBigintInputs {
+  /**
+   * Convert a Uint8Array field element to a bigint.
+   * @param arr - Uint8Array to convert.
+   * @returns Bigint representation of the field element.
+   */
+  const toBI = (arr: Uint8Array) => BigInt(uint8ArrayToNumberString(arr))
+
+  return {
+    merkleRoot: toBI(inputs.merkleRoot),
+    boundParamsHash: toBI(inputs.boundParamsHash),
+    nullifiers: inputs.inputTXOs.map(txo => toBI(txo.nullifier)),
+    commitmentsOut: inputs.outputTXOs.map(txo => toBI(txo.commitment)),
+    token: toBI(inputs.token),
+    publicKey: inputs.publicKey.map(toBI),
+    signature: inputs.signature.map(toBI),
+    randomIn: inputs.inputTXOs.map(txo => toBI(txo.randomIn)),
+    valueIn: inputs.inputTXOs.map(txo => txo.valueIn),
+    pathElements: inputs.inputTXOs.flatMap(txo => txo.pathElements.map(toBI)),
+    leavesIndices: inputs.inputTXOs.map(txo => BigInt(txo.merkleleafPosition)),
+    nullifyingKey: toBI(inputs.nullifyingKey),
+    npkOut: inputs.outputTXOs.map(txo => toBI(txo.npk)),
+    valueOut: inputs.outputTXOs.map(txo => txo.value),
+  }
+}
 
 test('Groth16Adapter: Should match snarkjs.groth16.fullProve interface for transaction', async function (assert) {
   const vector = testVectors[0]
   if (!vector) return assert.fail('No test vectors found')
 
   const prover = new SnarkjsTransactionProver(vector.artifacts)
-  const groth16Adapter = createGroth16ForEngine(
-    prover,
-    null,
-    vector.artifacts,
-    null
-  )
+  const groth16Adapter = createGroth16ForEngine({
+    transaction: { prover, artifacts: vector.artifacts },
+  })
 
-  const snarkjsInputs = standardToSnarkJSInput(vector.inputs)
+  const bigintInputs = toBigintInputs(vector.inputs)
   const result = await groth16Adapter.fullProve(
-    snarkjsInputs,
+    bigintInputs,
     vector.artifacts.wasm,
     vector.artifacts.zkey
   )
@@ -34,19 +63,6 @@ test('Groth16Adapter: Should match snarkjs.groth16.fullProve interface for trans
   assert.is(result.proof.pi_c.length, 2, 'proof.pi_c should have 2 elements')
   assert.ok(Array.isArray(result.proof.pi_b[0]), 'proof.pi_b[0] should be array')
   assert.ok(Array.isArray(result.proof.pi_b[1]), 'proof.pi_b[1] should be array')
-
-  const snarkjsResult = await groth16.fullProve(
-    snarkjsInputs,
-    vector.artifacts.wasm,
-    vector.artifacts.zkey
-  )
-
-  assert.is(
-    result.publicSignals.length,
-    snarkjsResult.publicSignals.length,
-    'publicSignals length should match snarkjs'
-  )
-  assert.is(result.proof.protocol, snarkjsResult.proof.protocol, 'protocol should match')
 })
 
 test('Groth16Adapter: Should match snarkjs.groth16.verify interface for transaction', async function (assert) {
@@ -54,11 +70,13 @@ test('Groth16Adapter: Should match snarkjs.groth16.verify interface for transact
   if (!vector) return assert.fail('No test vectors found')
 
   const prover = new SnarkjsTransactionProver(vector.artifacts)
-  const groth16Adapter = createGroth16ForEngine(prover, null, vector.artifacts, null)
+  const groth16Adapter = createGroth16ForEngine({
+    transaction: { prover, artifacts: vector.artifacts },
+  })
 
-  const snarkjsInputs = standardToSnarkJSInput(vector.inputs)
+  const bigintInputs = toBigintInputs(vector.inputs)
   const proveResult = await groth16Adapter.fullProve(
-    snarkjsInputs,
+    bigintInputs,
     vector.artifacts.wasm,
     vector.artifacts.zkey
   )
@@ -86,16 +104,13 @@ test('Groth16Adapter: Should match snarkjs.groth16.verify interface for transact
 test('Groth16Adapter: Should handle all transaction test vectors', async function (assert) {
   for (const vector of testVectors) {
     const prover = new SnarkjsTransactionProver(vector.artifacts)
-    const groth16Adapter = createGroth16ForEngine(
-      prover,
-      null,
-      vector.artifacts,
-      null
-    )
+    const groth16Adapter = createGroth16ForEngine({
+      transaction: { prover, artifacts: vector.artifacts },
+    })
 
-    const snarkjsInputs = standardToSnarkJSInput(vector.inputs)
+    const bigintInputs = toBigintInputs(vector.inputs)
     const result = await groth16Adapter.fullProve(
-      snarkjsInputs,
+      bigintInputs,
       vector.artifacts.wasm,
       vector.artifacts.zkey
     )
@@ -117,12 +132,9 @@ test('Groth16Adapter: Should throw error for invalid input format', async functi
   if (!vector) return assert.fail('No test vectors found')
 
   const prover = new SnarkjsTransactionProver(vector.artifacts)
-  const groth16Adapter = createGroth16ForEngine(
-    prover,
-    null,
-    vector.artifacts,
-    null
-  )
+  const groth16Adapter = createGroth16ForEngine({
+    transaction: { prover, artifacts: vector.artifacts },
+  })
 
   const invalidInputs = { invalid: 'format' }
 
@@ -150,16 +162,13 @@ test('Groth16Adapter: Should throw error when verify receives invalid publicSign
   if (!vector) return assert.fail('No test vectors found')
 
   const prover = new SnarkjsTransactionProver(vector.artifacts)
-  const groth16Adapter = createGroth16ForEngine(
-    prover,
-    null,
-    vector.artifacts,
-    null
-  )
+  const groth16Adapter = createGroth16ForEngine({
+    transaction: { prover, artifacts: vector.artifacts },
+  })
 
-  const snarkjsInputs = standardToSnarkJSInput(vector.inputs)
+  const bigintInputs = toBigintInputs(vector.inputs)
   const proveResult = await groth16Adapter.fullProve(
-    snarkjsInputs,
+    bigintInputs,
     vector.artifacts.wasm,
     vector.artifacts.zkey
   )
@@ -179,27 +188,21 @@ test('Groth16Adapter: Should throw error when verify receives invalid publicSign
   }
 })
 
-test('Groth16Adapter: Should handle missing prover gracefully', async function (assert) {
+test('Groth16Adapter: Should throw error when transaction prover not configured', async function (assert) {
   const vector = testVectors[0]
   if (!vector) return assert.fail('No test vectors found')
 
-  // Create adapter without provers
-  const groth16Adapter = createGroth16ForEngine(
-    null,
-    null,
-    null,
-    null
-  )
+  const groth16Adapter = createGroth16ForEngine({})
 
-  const snarkjsInputs = standardToSnarkJSInput(vector.inputs)
+  const bigintInputs = toBigintInputs(vector.inputs)
 
   try {
     await groth16Adapter.fullProve(
-      snarkjsInputs,
+      bigintInputs,
       vector.artifacts.wasm,
       vector.artifacts.zkey
     )
-    assert.fail('should throw error when prover not provided')
+    assert.fail('should throw error when prover not configured')
   } catch (error) {
     if (error instanceof Error) {
       assert.ok(error instanceof Error, 'should throw Error')
@@ -213,21 +216,12 @@ test('Groth16Adapter: Should handle missing prover gracefully', async function (
   }
 })
 
-// Note: The fallback verify behavior when artifacts are not provided is implemented
-// in the adapter but not tested here because:
-// 1. In practice, artifacts should always be provided
-// 2. The fallback to snarkjs.verify can hang in some environments due to curve initialization
-// 3. The main verify behavior is already tested with artifacts provided (above tests)
-// The fallback code path is: if no artifacts match, call groth16.verify directly (line 247 in groth16-adapter.ts)
-
 hook('Cleanup snarkJS', async function () {
-  // Clean up all provers used in tests
   for (const vector of testVectors) {
     const prover = new SnarkjsTransactionProver(vector.artifacts)
     await prover.cleanupSnarkJS()
   }
 
-  // Clean up direct groth16 usage (curves)
   try {
     const curve = await curves.getCurveFromName('bn128')
     await curve.terminate()

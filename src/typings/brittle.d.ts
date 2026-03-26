@@ -1,119 +1,148 @@
-// NOTE: @types/brittle is outdated, which calls for this
+/**
+ * Type declarations for the brittle test framework.
+ */
+
+interface CoercibleAssertion {
+  (actual: unknown, expected: unknown, message?: string): void;
+  coercively(actual: unknown, expected: unknown, message?: string): void;
+}
+
+type AnyErrorConstructor = new () => Error
+
+interface ExceptionAssertion {
+  (fn: Promise<unknown> | (() => Promise<unknown>), message?: string): Promise<void>;
+  (
+    fn: Promise<unknown> | (() => Promise<unknown>),
+    error?: RegExp | AnyErrorConstructor,
+    message?: string,
+  ): Promise<void>;
+  (fn: () => unknown, message?: string): void;
+  (fn: () => unknown, error?: RegExp | AnyErrorConstructor, message?: string): void;
+  all(fn: Promise<unknown> | (() => Promise<unknown>), message?: string): Promise<void>;
+  all(
+    fn: Promise<unknown> | (() => Promise<unknown>),
+    error?: RegExp | AnyErrorConstructor,
+    message?: string,
+  ): Promise<void>;
+  all(fn: () => unknown, message?: string): void;
+  all(fn: () => unknown, error?: RegExp | AnyErrorConstructor, message?: string): void;
+}
+
+/**
+ * The assertion object passed to each test callback.
+ */
+interface TestInstance {
+  /** Assert strict equality. */
+  is: CoercibleAssertion;
+  /** Assert strict inequality. */
+  not: CoercibleAssertion;
+  /** Assert deep equality. */
+  alike: CoercibleAssertion;
+  /** Assert deep inequality. */
+  unlike: CoercibleAssertion;
+  /**
+   * Assert that value is truthy.
+   * @param value - The value to check.
+   * @param message - Optional assertion message.
+   */
+  ok(value: unknown, message?: string): void;
+  /**
+   * Assert that value is falsy.
+   * @param value - The value to check.
+   * @param message - Optional assertion message.
+   */
+  absent(value: unknown, message?: string): void;
+  /**
+   * Pass unconditionally.
+   * @param message - Optional message.
+   */
+  pass(message?: string): void;
+  /**
+   * Fail unconditionally.
+   * @param message - Optional message.
+   */
+  fail(message?: string): void;
+  /** Assert that a function throws. */
+  exception: ExceptionAssertion;
+  /**
+   * Assert that a function executes without throwing.
+   * @param fn - The function to execute.
+   * @param message - Optional message.
+   */
+  execution<T>(fn: T | Promise<T>, message?: string): Promise<number>;
+  /**
+   * Plan the number of assertions.
+   * @param n - Expected assertion count.
+   */
+  plan(n: number): void;
+  /**
+   * Register a teardown callback.
+   * @param fn - Teardown function.
+   * @param options - Optional options.
+   * @param options.order - Teardown order priority.
+   */
+  teardown(fn: () => unknown | Promise<unknown>, options?: { order?: number }): void;
+  /**
+   * Set a timeout for the test.
+   * @param ms - Timeout in milliseconds.
+   */
+  timeout(ms: number): void;
+  /**
+   * Emit a TAP comment.
+   * @param message - The comment text.
+   */
+  comment(message: string): void;
+  /** Signal test completion when not using plan(). */
+  end(): void;
+  /** Nested test function. */
+  test: TestFn;
+}
+
+/**
+ * Options for configuring a test.
+ */
+interface TestOptions {
+  /** Timeout in milliseconds. */
+  timeout?: number;
+  /** Run only this test. */
+  solo?: boolean;
+  /** Skip this test. */
+  skip?: boolean;
+  /** Mark as a future test. */
+  todo?: boolean;
+}
+
+/**
+ * The test function signature.
+ */
+interface TestFn {
+  (name: string, options: TestOptions, callback: (t: TestInstance) => void | Promise<void>): Promise<void>;
+  (name: string, callback: (t: TestInstance) => void | Promise<void>): Promise<void>;
+  (callback: (t: TestInstance) => void | Promise<void>): Promise<void>;
+  (name: string, options: TestOptions): TestInstance;
+  (name: string): TestInstance;
+  (): TestInstance;
+}
+
+/**
+ * Top-level test function with solo/skip variants.
+ */
+interface Test extends TestFn {
+  /** Nested test function. */
+  test: Test;
+  /** Run only matching tests. */
+  solo: TestFn;
+  /** Skip matching tests. */
+  skip: TestFn;
+  /**
+   * Configure default test options.
+   * @param options - The options to apply.
+   */
+  configure(options: TestOptions): void;
+}
+
 declare module 'brittle' {
-  interface CoercibleAssertion {
-    (actual: unknown, expected: unknown, message?: string): void;
-    coercively(actual: unknown, expected: unknown, message?: string): void;
-  }
-
-  type AnyErrorConstructor = new() => Error
-
-  interface ExceptionAssertion {
-    (fn: Promise<unknown> | (() => Promise<unknown>), message?: string): Promise<void>;
-    (
-      fn: Promise<unknown> | (() => Promise<unknown>),
-      error?: RegExp | AnyErrorConstructor,
-      message?: string,
-    ): Promise<void>;
-    (fn: () => unknown, message?: string): void;
-    (fn: () => unknown, error?: RegExp | AnyErrorConstructor, message?: string): void;
-
-    all(fn: Promise<unknown> | (() => Promise<unknown>), message?: string): Promise<void>;
-    all(
-      fn: Promise<unknown> | (() => Promise<unknown>),
-      error?: RegExp | AnyErrorConstructor,
-      message?: string,
-    ): Promise<void>;
-    all(fn: () => unknown, message?: string): void;
-    all(fn: () => unknown, error?: RegExp | AnyErrorConstructor, message?: string): void;
-  }
-
-  interface TeardownOptions {
-    order?: number;
-    force?: boolean;
-  }
-
-  interface Assertion {
-    is: CoercibleAssertion;
-    not: CoercibleAssertion;
-    alike: CoercibleAssertion;
-    unlike: CoercibleAssertion;
-    ok(value: unknown, message?: string): void;
-    absent(value: unknown, message?: string): void;
-    pass(message?: string): void;
-    fail(message?: string): void;
-    exception: ExceptionAssertion;
-    execution<T>(fn: (() => T) | Promise<T> | T, message?: string): Promise<number>;
-    snapshot(actual: unknown, message?: string): void;
-  }
-
-  interface TestOptions {
-    timeout?: number;
-    solo?: boolean;
-    skip?: boolean;
-    todo?: boolean;
-    stealth?: boolean;
-    hook?: boolean;
-  }
-
-  interface ConfigureOptions {
-    timeout?: number;
-    bail?: boolean;
-    solo?: boolean;
-    unstealth?: boolean;
-    source?: boolean;
-  }
-
-  interface TestInstance extends Assertion {
-    plan(n: number): void;
-    teardown(fn: () => unknown | Promise<unknown>, options?: TeardownOptions): void;
-    timeout(ms: number): void;
-    comment(...message: any[]): void;
-    end(): void;
-    test: TestFn;
-    stealth: StealthFn;
-    tmp(): string; // Returns a temporary directory path
-
-    // Promise interface
-    then<TResult1 = unknown, TResult2 = never>(
-      onfulfilled?: ((value: unknown) => TResult1 | PromiseLike<TResult1>) | undefined | null,
-      onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
-    ): Promise<TResult1 | TResult2>;
-    catch<TResult = never>(
-      onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null
-    ): Promise<unknown | TResult>;
-    finally(onfinally?: (() => void) | undefined | null): Promise<unknown>;
-  }
-
-  interface TestFn {
-    (name: string, options: TestOptions, callback: (t: TestInstance) => void | Promise<void>): Promise<void>;
-    (name: string, callback: (t: TestInstance) => void | Promise<void>): Promise<void>;
-    (callback: (t: TestInstance) => void | Promise<void>): Promise<void>;
-    (name: string, options: TestOptions): TestInstance;
-    (name: string): TestInstance;
-    (): TestInstance;
-  }
-
-  interface StealthFn {
-    (name: string, options: TestOptions, callback: (t: TestInstance) => void | Promise<void>): Promise<void>;
-    (name: string, callback: (t: TestInstance) => void | Promise<void>): Promise<void>;
-    (callback: (t: TestInstance) => void | Promise<void>): Promise<void>;
-  }
-
-  interface Test extends TestFn {
-    Test: any; // The Test class
-    test: Test;
-    solo: TestFn;
-    skip: TestFn;
-    todo: TestFn;
-    hook: TestFn;
-    stealth: StealthFn;
-    configure(options: ConfigureOptions): void;
-    pause(): void;
-    resume(): void;
-    createTypedArray: any; // For snapshot functionality
-  }
-
-  declare const test: Test
-
-  export = test
+  const test: Test
+  const hook: TestFn
+  export { test, hook }
 }

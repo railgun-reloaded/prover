@@ -1,4 +1,26 @@
 import type { Proof, ProverArtifacts, VKey } from '../types'
+
+/**
+ * Bigint-based transaction circuit inputs matching the engine's FormattedCircuitInputsRailgun.
+ * Used at the adapter boundary when receiving inputs from the engine.
+ */
+type TransactionBigintInputs = {
+  merkleRoot: bigint
+  boundParamsHash: bigint
+  nullifiers: bigint[]
+  commitmentsOut: bigint[]
+  token: bigint
+  publicKey: bigint[]
+  signature: bigint[]
+  randomIn: bigint[]
+  valueIn: bigint[]
+  pathElements: bigint[]
+  leavesIndices: bigint[]
+  nullifyingKey: bigint
+  npkOut: bigint[]
+  valueOut: bigint[]
+}
+
 /**
  * Standard representation of circuit inputs
  */
@@ -54,4 +76,4 @@ type TransactionPublicInputs = {
   boundParams: Uint8Array; // Return a hash; interface is not important to circuit interaction
 }
 
-export type { Proof, SnarkJSCircuitInputFormat, TransactionCircuitInputs, TransactionPublicInputs, ProverArtifacts, VKey }
+export type { Proof, SnarkJSCircuitInputFormat, TransactionBigintInputs, TransactionCircuitInputs, TransactionPublicInputs, ProverArtifacts, VKey }
