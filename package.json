@@ -14,19 +14,17 @@
   "author": "RAILGUN Project Contributors",
   "type": "commonjs",
   "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "types": "src/index.ts",
   "exports": {
     ".": {
-      "types": "./src/index.d.ts",
+      "types": "./src/index.ts",
       "require": "./src/index.js",
       "import": "./src/index.js"
     }
   },
   "files": [
-    "src/**/*.js",
-    "src/**/*.d.ts",
-    "src/**/*.d.ts.map",
-    "src/**/*.js.map"
+    "src/**/*.ts",
+    "src/**/*.js"
   ],
   "scripts": {
     "prepare": "npm run build",
