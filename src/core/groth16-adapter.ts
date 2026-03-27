@@ -190,6 +190,7 @@ function createGroth16FromPOIProver (
  * @returns A Groth16Prover compatible with the engine's SnarkJSGroth16 interface.
  */
 function createGroth16ForEngine (): Groth16Prover {
+  console.log('[railgun-reloaded/prover] createGroth16ForEngine() called — reloaded prover is active')
   return {
     /**
      * Detect input type, convert bigint inputs to snarkJS format, and generate proof
