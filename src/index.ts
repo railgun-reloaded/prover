@@ -17,7 +17,7 @@ export type {
   POISnarkjsFormattedCircuitInputs,
 } from './poi/types'
 
-export { standardToSnarkJSInput as standardToSnarkJSTransactionInput } from './transaction/formatter'
+export { standardToSnarkJSInput as standardToSnarkJSTransactionInput, snarkJSToStandardInput as snarkJSToStandardTransactionInput } from './transaction/formatter'
 export { standardToSnarkJSInput as standardToSnarkJSPOIInput, snarkJSToStandardInput as snarkJSToStandardPOIInput } from './poi/formatter'
 
 export { SnarkjsTransactionProver } from './transaction/prover'
