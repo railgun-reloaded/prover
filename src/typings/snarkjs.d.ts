@@ -4,14 +4,31 @@
  */
 declare module 'snarkjs' {
   /**
+   * G1 elliptic curve point in snarkjs wire format.
+   * Affine: [x, y]. Projective (from fullProve): [x, y, "1"].
+   */
+  type G1Point = [string, string, ...string[]]
+
+  /**
+   * G2 extension-field coordinate pair [c0, c1] in snarkjs wire format.
+   */
+  type G2Component = [string, string, ...string[]]
+
+  /**
+   * G2 elliptic curve point in snarkjs wire format.
+   * Affine: [[x_c0, x_c1], [y_c0, y_c1]]. Projective (from fullProve): [[x_c0, x_c1], [y_c0, y_c1], ["1", "0"]].
+   */
+  type G2Point = [G2Component, G2Component, ...G2Component[]]
+
+  /**
    * A groth16 proof in snarkjs wire format.
    * pi_b coordinates are stored in reversed order relative to the standard representation.
    */
   type SnarkjsProof = {
-    pi_a: string[];
-    pi_b: string[][];
-    pi_c: string[];
-    protocol: string;
+    pi_a: G1Point;
+    pi_b: G2Point;
+    pi_c: G1Point;
+    protocol: 'groth16';
   }
 
   /**
