@@ -22,7 +22,7 @@ const PROOF_TIMEOUT = 120_000
 const toBigint = (arr: Uint8Array): bigint => BigInt(uint8ArrayToHexString(arr))
 
 /**
- * Convert standard TransactionCircuitInputs to the flat bigint format the engine sends.
+ * Convert standard TransactionCircuitInputs to the flat bigint format.
  * @param inputs - Standard circuit inputs with Uint8Arrays and nested TXO structures.
  * @returns Flat bigint-based inputs matching TransactionBigintInputs.
  */
@@ -72,7 +72,7 @@ const parseBigint = (value: string | number | bigint): bigint => BigInt(value)
 /**
  * Load a POI test vector as POIBigintInputs directly from JSON.
  * @param filePath - Path to the JSON test vector file.
- * @returns POIBigintInputs matching the engine's FormattedCircuitInputsPOI.
+ * @returns POIBigintInputs with all fields parsed to bigint.
  */
 function loadPOIBigintInputs (filePath: string): POIBigintInputs {
   const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'))

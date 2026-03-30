@@ -118,9 +118,9 @@ function standardToSnarkJSPublicInputs (publicInputs: TransactionPublicInputs) :
 }
 
 /**
- * Convert bigint-based engine inputs to standard Uint8Array circuit inputs.
+ * Convert bigint-based inputs to standard Uint8Array circuit inputs.
  * Handles the flat pathElements array by deriving tree depth from input count.
- * @param inputs - Bigint-based inputs matching the engine's FormattedCircuitInputsRailgun.
+ * @param inputs - Bigint-based transaction inputs.
  * @returns Standard TransactionCircuitInputs with Uint8Array field elements.
  */
 function bigintToTransactionCircuitInputs (inputs: TransactionBigintInputs): TransactionCircuitInputs {

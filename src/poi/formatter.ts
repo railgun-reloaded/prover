@@ -135,8 +135,8 @@ function standardToSnarkJSPublicInputs (publicInputs: POIPublicInputs) : string[
 }
 
 /**
- * Convert bigint-based engine inputs to standard Uint8Array POI circuit inputs.
- * @param inputs - Bigint-based inputs matching the engine's FormattedCircuitInputsPOI.
+ * Convert bigint-based inputs to standard Uint8Array POI circuit inputs.
+ * @param inputs - Bigint-based POI inputs.
  * @returns Standard POICircuitInputs with Uint8Array field elements.
  */
 function bigintToPOICircuitInputs (inputs: POIBigintInputs): POICircuitInputs {

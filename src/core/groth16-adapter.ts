@@ -9,12 +9,12 @@ import type { TransactionBigintInputs, TransactionCircuitInputs, TransactionPubl
 import type { BaseProver } from './base-prover'
 
 /**
- * Interface matching the snarkjs.groth16 API surface used by the RAILGUN engine.
+ * Groth16 proof generation and verification interface compatible with snarkjs.
  */
 interface Groth16Prover {
   /**
    * Generate a proof for circuit inputs.
-   * @param inputs - Raw circuit inputs (bigint-based for engine path, SnarkJSFormat for standalone).
+   * @param inputs - Circuit inputs (bigint-based or snarkJS hex-string format).
    * @param wasm - WASM circuit artifact.
    * @param zkey - Proving key artifact.
    * @param logger - Optional logger.
@@ -35,7 +35,7 @@ interface Groth16Prover {
   /**
    * Verify a proof against a verification key and public signals.
    * @param vkVerifier - The verification key for the circuit.
-   * @param publicSignals - Public signals as produced by the engine.
+   * @param publicSignals - The public signals array.
    * @param proof - The snarkjs-format proof to verify.
    * @param logger - Optional logger.
    * @returns Promise resolving to true if the proof is valid.
@@ -88,8 +88,8 @@ function createGroth16FromTransactionProver (
 ): Groth16Prover {
   return {
     /**
-     * Convert bigint transaction inputs to domain format, generate proof, and return snarkjs SNARK output.
-     * @param inputs - Raw transaction circuit inputs from the engine (bigint-based).
+     * Convert bigint transaction inputs to standard format, generate proof, and return snarkjs SNARK output.
+     * @param inputs - Bigint-based transaction circuit inputs.
      * @param _wasm - Unused; artifact is managed by the sub-prover.
      * @param _zkey - Unused; artifact is managed by the sub-prover.
      * @returns Promise resolving to snarkjs SNARK output with proof and public signals.
@@ -111,7 +111,7 @@ function createGroth16FromTransactionProver (
       }
     },
     /**
-     * Verify a transaction proof using snarkjs groth16 directly.
+     * Verify a transaction proof using snarkjs groth16.
      * @param vkVerifier - The verification key for the circuit.
      * @param publicSignals - Public signals array.
      * @param proof - The snarkjs-format proof to verify.
@@ -141,8 +141,8 @@ function createGroth16FromPOIProver (
 ): Groth16Prover {
   return {
     /**
-     * Convert bigint POI inputs to domain format, generate proof, and return snarkjs SNARK output.
-     * @param inputs - Raw POI circuit inputs from the engine (bigint-based).
+     * Convert bigint POI inputs to standard format, generate proof, and return snarkjs SNARK output.
+     * @param inputs - Bigint-based POI circuit inputs.
      * @param _wasm - Unused; artifact is managed by the sub-prover.
      * @param _zkey - Unused; artifact is managed by the sub-prover.
      * @returns Promise resolving to snarkjs SNARK output with proof and public signals.
@@ -184,19 +184,18 @@ function createGroth16FromPOIProver (
 }
 
 /**
- * Creates a Groth16Prover adapter for use with the RAILGUN engine's setSnarkJSGroth16.
- * Converts the engine's bigint circuit inputs to snarkJS hex-string format, then calls
- * groth16.fullProve with the wasm and zkey artifacts provided by the engine's artifactGetter.
- * @returns A Groth16Prover compatible with the engine's SnarkJSGroth16 interface.
+ * Creates a Groth16Prover that auto-detects input type and converts bigint circuit inputs
+ * to snarkJS hex-string format before calling groth16.fullProve with caller-provided artifacts.
+ * @returns A Groth16Prover that accepts both Transaction and POI bigint inputs.
  */
 function createGroth16ForEngine (): Groth16Prover {
   return {
     /**
-     * Detect input type, convert bigint inputs to snarkJS format, and generate proof
-     * using the wasm and zkey artifacts provided by the engine.
-     * @param inputs - Raw circuit inputs from the engine (bigint-based).
-     * @param wasm - WASM artifact provided by the engine's artifactGetter.
-     * @param zkey - Proving key artifact provided by the engine's artifactGetter.
+     * Detect input type (Transaction or POI), convert bigint inputs to snarkJS format,
+     * and generate a proof using the provided artifacts.
+     * @param inputs - Bigint-based circuit inputs (Transaction or POI).
+     * @param wasm - WASM circuit artifact.
+     * @param zkey - Proving key artifact.
      * @param logger - Optional logger.
      * @returns Promise resolving to snarkjs SNARK output with proof and public signals.
      */
@@ -206,7 +205,7 @@ function createGroth16ForEngine (): Groth16Prover {
       zkey: ArrayLike<number>,
       logger?: unknown
     ): Promise<SNARK> {
-      if (!wasm) throw new Error('WASM artifact is required for snarkjs engine prover')
+      if (!wasm) throw new Error('WASM artifact is required for snarkjs prover')
       const wasmBytes = wasm instanceof Uint8Array ? wasm : Uint8Array.from(wasm)
       const zkeyBytes = zkey instanceof Uint8Array ? zkey : Uint8Array.from(zkey)
 

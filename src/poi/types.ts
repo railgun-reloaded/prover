@@ -1,8 +1,8 @@
 import type { Proof, ProverArtifacts } from '../types'
 
 /**
- * Bigint-based POI circuit inputs matching the engine's FormattedCircuitInputsPOI.
- * Used at the adapter boundary when receiving inputs from the engine.
+ * Bigint-based POI circuit inputs.
+ * Used at the adapter boundary when receiving bigint field elements from callers.
  */
 type POIBigintInputs = {
   anyRailgunTxidMerklerootAfterTransaction: bigint

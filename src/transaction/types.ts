@@ -1,8 +1,8 @@
 import type { Proof, ProverArtifacts, VKey } from '../types'
 
 /**
- * Bigint-based transaction circuit inputs matching the engine's FormattedCircuitInputsRailgun.
- * Used at the adapter boundary when receiving inputs from the engine.
+ * Bigint-based transaction circuit inputs.
+ * Used at the adapter boundary when receiving bigint field elements from callers.
  */
 type TransactionBigintInputs = {
   merkleRoot: bigint
