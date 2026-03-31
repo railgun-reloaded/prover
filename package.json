@@ -12,20 +12,8 @@
   },
   "license": "MIT",
   "author": "RAILGUN Project Contributors",
-  "type": "commonjs",
   "main": "src/index.js",
   "types": "src/index.ts",
-  "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "require": "./src/index.js",
-      "import": "./src/index.js"
-    }
-  },
-  "files": [
-    "src/**/*.ts",
-    "src/**/*.js"
-  ],
   "scripts": {
     "prepare": "npm run build",
     "pretest": "npm run build",

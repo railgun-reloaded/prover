@@ -1,4 +1,4 @@
-import type { Proof } from '../types'
+import type { Proof } from '../definitions'
 
 /**
  * Base Prover interface for generating and verifying zero-knowledge proofs.

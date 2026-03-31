@@ -1,5 +1,3 @@
-/// <reference path="./typings/snarkjs.d.ts" />
-
 export type {
   Proof,
   TransactionCircuitInputs,
