@@ -1,10 +1,14 @@
-import type { Proof } from '../definitions'
+import type { Proof, ProverArtifacts } from './definitions'
 
 /**
  * Base Prover interface for generating and verifying zero-knowledge proofs.
- * Implementations are responsible for managing their own artifacts.
  */
 export interface BaseProver<TCircuitInputs, TPublicInputs> {
+  /**
+   * Cryptographic artifacts required for proof generation and verification.
+   */
+  readonly artifacts: ProverArtifacts;
+
   /**
    * Generate a proof for given circuit inputs.
    * @param circuitInputs - The inputs to the circuit.

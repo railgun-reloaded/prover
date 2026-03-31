@@ -1,12 +1,11 @@
 import type { SNARK, SnarkjsProof, VKey } from 'snarkjs'
 import { groth16 } from 'snarkjs'
 
-import { bigintToPOICircuitInputs, standardToSnarkJSInput as poiToSnarkJSInput, standardToSnarkJSProof as poiToSnarkJSProof, standardToSnarkJSPublicInputs as poiToSnarkJSPublicInputs } from '../poi/formatter'
-import type { POIBigintInputs, POICircuitInputs, POIPublicInputs } from '../poi/types'
-import { bigintToTransactionCircuitInputs, standardToSnarkJSInput as txToSnarkJSInput, standardToSnarkJSProof as txToSnarkJSProof, standardToSnarkJSPublicInputs as txToSnarkJSPublicInputs } from '../transaction/formatter'
-import type { TransactionBigintInputs, TransactionCircuitInputs, TransactionPublicInputs } from '../transaction/types'
-
 import type { BaseProver } from './base-prover'
+import { bigintToPOICircuitInputs, standardToSnarkJSInput as poiToSnarkJSInput, standardToSnarkJSProof as poiToSnarkJSProof, standardToSnarkJSPublicInputs as poiToSnarkJSPublicInputs } from './poi/formatter'
+import type { POIBigintInputs, POICircuitInputs, POIPublicInputs } from './poi/types'
+import { bigintToTransactionCircuitInputs, standardToSnarkJSInput as txToSnarkJSInput, standardToSnarkJSProof as txToSnarkJSProof, standardToSnarkJSPublicInputs as txToSnarkJSPublicInputs } from './transaction/formatter'
+import type { TransactionBigintInputs, TransactionCircuitInputs, TransactionPublicInputs } from './transaction/types'
 
 /**
  * Groth16 proof generation and verification interface compatible with snarkjs.

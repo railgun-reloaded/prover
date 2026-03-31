@@ -1,6 +1,6 @@
 import type { SnarkjsProof } from 'snarkjs'
 
-import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../core/bytes'
+import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../bytes'
 
 import type { Proof, SnarkJSCircuitInputFormat, TransactionBigintInputs, TransactionCircuitInputs, TransactionPublicInputs } from './types'
 

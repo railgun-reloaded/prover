@@ -1,6 +1,6 @@
 import type { SnarkjsProof } from 'snarkjs'
 
-import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../core/bytes'
+import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../bytes'
 
 import type { POIBigintInputs, POICircuitInputs, POIPublicInputs, POISnarkjsFormattedCircuitInputs, Proof } from './types'
 
@@ -49,24 +49,16 @@ function snarkJSToStandardInput (snarkJSInput: POISnarkjsFormattedCircuitInputs)
     nullifyingKey: hexStringToUint8Array(snarkJSInput.nullifyingKey),
     token: hexStringToUint8Array(snarkJSInput.token),
     randomsIn: snarkJSInput.randomsIn.map(hexStringToUint8Array),
-
     valuesIn: snarkJSInput.valuesIn.map(val => BigInt(val)),
-
     utxoPositionsIn: snarkJSInput.utxoPositionsIn,
     utxoTreeIn: snarkJSInput.utxoTreeIn,
-
     npksOut: snarkJSInput.npksOut.map(hexStringToUint8Array),
-
     valuesOut: snarkJSInput.valuesOut.map(val => BigInt(val)),
-
     utxoBatchGlobalStartPositionOut: hexStringToUint8Array(snarkJSInput.utxoBatchGlobalStartPositionOut),
     railgunTxidIfHasUnshield: hexStringToUint8Array(snarkJSInput.railgunTxidIfHasUnshield),
-
     railgunTxidMerkleProofIndices: snarkJSInput.railgunTxidMerkleProofIndices,
     railgunTxidMerkleProofPathElements: snarkJSInput.railgunTxidMerkleProofPathElements.map(hexStringToUint8Array),
-
     poiInMerkleProofIndices: snarkJSInput.poiInMerkleProofIndices.map(val => Number(val)),
-
     poiInMerkleProofPathElements: snarkJSInput.poiInMerkleProofPathElements.map(pathArray => pathArray.map(hexStringToUint8Array))
   }
 }
