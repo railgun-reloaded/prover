@@ -1,4 +1,31 @@
-import type { Proof, ProverArtifacts } from '../types'
+import type { Proof, ProverArtifacts } from '../definitions'
+
+/**
+ * Bigint-based POI circuit inputs.
+ * Used at the adapter boundary when receiving bigint field elements from callers.
+ */
+type POIBigintInputs = {
+  anyRailgunTxidMerklerootAfterTransaction: bigint
+  poiMerkleroots: bigint[]
+  boundParamsHash: bigint
+  nullifiers: bigint[]
+  commitmentsOut: bigint[]
+  spendingPublicKey: [bigint, bigint]
+  nullifyingKey: bigint
+  token: bigint
+  randomsIn: bigint[]
+  valuesIn: bigint[]
+  utxoPositionsIn: bigint[]
+  utxoTreeIn: bigint
+  npksOut: bigint[]
+  valuesOut: bigint[]
+  utxoBatchGlobalStartPositionOut: bigint
+  railgunTxidIfHasUnshield: bigint
+  railgunTxidMerkleProofIndices: bigint
+  railgunTxidMerkleProofPathElements: bigint[]
+  poiInMerkleProofIndices: bigint[]
+  poiInMerkleProofPathElements: bigint[][]
+}
 
 type POIPublicInputs = {
   proof: Proof;
@@ -74,4 +101,4 @@ type POIPublicInputs = {
    poiInMerkleProofPathElements: string[][];
  }
 
-export type { POIPublicInputs, POICircuitInputs, POISnarkjsFormattedCircuitInputs, Proof, ProverArtifacts }
+export type { POIBigintInputs, POIPublicInputs, POICircuitInputs, POISnarkjsFormattedCircuitInputs, Proof, ProverArtifacts }

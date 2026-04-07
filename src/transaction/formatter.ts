@@ -1,8 +1,8 @@
 import type { SnarkjsProof } from 'snarkjs'
 
-import { numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../core/bytes'
+import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../bytes'
 
-import type { Proof, SnarkJSCircuitInputFormat, TransactionCircuitInputs, TransactionPublicInputs, } from './types'
+import type { Proof, SnarkJSCircuitInputFormat, TransactionBigintInputs, TransactionCircuitInputs, TransactionPublicInputs } from './types'
 
 /**
  * Convert inputs to snarkJS format
@@ -25,6 +25,33 @@ function standardToSnarkJSInput (circuitInputs: TransactionCircuitInputs): Snark
     nullifyingKey: uint8ArrayToHexString(circuitInputs.nullifyingKey),
     npkOut: circuitInputs.outputTXOs.map(txo => uint8ArrayToHexString(txo.npk)),
     valueOut: circuitInputs.outputTXOs.map(txo => txo.value.toString()),
+  }
+}
+/**
+ * Convert snarkJS formatted inputs back to standard TransactionCircuitInputs
+ * @param snarkJSInput - Formatted snarkJS inputs
+ * @returns Standard circuit inputs with Uint8Arrays and BigInts
+ */
+function snarkJSToStandardInput (snarkJSInput: SnarkJSCircuitInputFormat): TransactionCircuitInputs {
+  return {
+    merkleRoot: hexStringToUint8Array(snarkJSInput.merkleRoot),
+    boundParamsHash: hexStringToUint8Array(snarkJSInput.boundParamsHash),
+    token: hexStringToUint8Array(snarkJSInput.token),
+    nullifyingKey: hexStringToUint8Array(snarkJSInput.nullifyingKey),
+    publicKey: snarkJSInput.publicKey.map(hexStringToUint8Array),
+    signature: snarkJSInput.signature.map(hexStringToUint8Array),
+    inputTXOs: snarkJSInput.nullifiers.map((_, i) => ({
+      nullifier: hexStringToUint8Array(snarkJSInput.nullifiers[i]!),
+      randomIn: hexStringToUint8Array(snarkJSInput.randomIn[i]!),
+      valueIn: BigInt(snarkJSInput.valueIn[i]!),
+      merkleleafPosition: Number(snarkJSInput.leavesIndices[i]),
+      pathElements: snarkJSInput.pathElements[i]!.map(hexStringToUint8Array),
+    })),
+    outputTXOs: snarkJSInput.commitmentsOut.map((_, i) => ({
+      commitment: hexStringToUint8Array(snarkJSInput.commitmentsOut[i]!),
+      npk: hexStringToUint8Array(snarkJSInput.npkOut[i]!),
+      value: BigInt(snarkJSInput.valueOut[i]!),
+    })),
   }
 }
 
@@ -90,4 +117,42 @@ function standardToSnarkJSPublicInputs (publicInputs: TransactionPublicInputs) :
   ]
 }
 
-export { standardToSnarkJSInput, snarkJSToStandardProof, extractPublicInputsFromCircuitInputs, standardToSnarkJSProof, standardToSnarkJSPublicInputs }
+/**
+ * Convert bigint-based inputs to standard Uint8Array circuit inputs.
+ * Handles the flat pathElements array by deriving tree depth from input count.
+ * @param inputs - Bigint-based transaction inputs.
+ * @returns Standard TransactionCircuitInputs with Uint8Array field elements.
+ */
+function bigintToTransactionCircuitInputs (inputs: TransactionBigintInputs): TransactionCircuitInputs {
+  /**
+   * Convert a bigint field element to a 32-byte Uint8Array.
+   * @param val - Bigint field element.
+   * @returns 32-byte Uint8Array representation of the field element.
+   */
+  const toBytes = (val: bigint) => numberStringToUint8Array(val.toString(), 32)
+  const numInputs = inputs.leavesIndices.length
+  const treeDepth = numInputs > 0 ? inputs.pathElements.length / numInputs : 0
+
+  return {
+    merkleRoot: toBytes(inputs.merkleRoot),
+    boundParamsHash: toBytes(inputs.boundParamsHash),
+    token: toBytes(inputs.token),
+    nullifyingKey: toBytes(inputs.nullifyingKey),
+    publicKey: inputs.publicKey.map(toBytes),
+    signature: inputs.signature.map(toBytes),
+    inputTXOs: inputs.leavesIndices.map((leafIndex, i) => ({
+      nullifier: toBytes(inputs.nullifiers[i]!),
+      randomIn: toBytes(inputs.randomIn[i]!),
+      valueIn: inputs.valueIn[i]!,
+      merkleleafPosition: Number(leafIndex),
+      pathElements: inputs.pathElements.slice(i * treeDepth, (i + 1) * treeDepth).map(toBytes),
+    })),
+    outputTXOs: inputs.commitmentsOut.map((commitment, i) => ({
+      commitment: toBytes(commitment),
+      npk: toBytes(inputs.npkOut[i]!),
+      value: inputs.valueOut[i]!,
+    })),
+  }
+}
+
+export { standardToSnarkJSInput, snarkJSToStandardProof, extractPublicInputsFromCircuitInputs, standardToSnarkJSProof, standardToSnarkJSPublicInputs, snarkJSToStandardInput, bigintToTransactionCircuitInputs }

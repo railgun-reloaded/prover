@@ -1,8 +1,8 @@
 import type { SnarkjsProof } from 'snarkjs'
 import { curves, groth16 } from 'snarkjs'
 
-import type { BaseProver } from '../core/base-prover'
-import { numberStringToUint8Array } from '../core/bytes'
+import type { BaseProver } from '../base-prover'
+import { numberStringToUint8Array } from '../bytes'
 
 import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatter'
 import type { POICircuitInputs, POIPublicInputs, Proof, ProverArtifacts } from './types'
@@ -12,9 +12,9 @@ import type { POICircuitInputs, POIPublicInputs, Proof, ProverArtifacts } from '
  */
 
 /**
- * A proof generator for transaction circuits using the SnarkJS library.
- * Implements zero-knowledge proof generation and verification for transaction validity,
- * ensuring that transactions satisfy circuit constraints without revealing private inputs.
+ * A proof generator for POI circuits using the SnarkJS library.
+ * Implements zero-knowledge proof generation and verification for Proof of Innocence,
+ * ensuring that transactions satisfy POI circuit constraints without revealing private inputs.
  */
 export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicInputs> {
   /**
