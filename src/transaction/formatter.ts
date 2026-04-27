@@ -1,8 +1,29 @@
+import { bigIntToBytes, bytesToBigInt, bytesToHex, hexToBytes } from '@railgun-reloaded/bytes'
 import type { SnarkjsProof } from 'snarkjs'
 
-import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../bytes'
-
 import type { Proof, SnarkJSCircuitInputFormat, TransactionBigintInputs, TransactionCircuitInputs, TransactionPublicInputs } from './types'
+
+/**
+ * Encodes a byte array as a `0x`-prefixed lowercase hex string.
+ * @param b - Bytes to encode.
+ * @returns `0x`-prefixed hex string.
+ */
+const toPrefixedHex = (b: Uint8Array): string => bytesToHex(b, { prefix: true })
+
+/**
+ * Encodes a byte array as a decimal big-integer string.
+ * @param b - Bytes to encode (big-endian).
+ * @returns Decimal string representation.
+ */
+const toDecimalString = (b: Uint8Array): string => bytesToBigInt(b).toString()
+
+/**
+ * Decodes a decimal or `0x`-prefixed hex string into a fixed-length byte array.
+ * @param s - Decimal or hex numeric string.
+ * @param byteLength - Target byte length.
+ * @returns Big-endian byte array of exactly `byteLength` bytes.
+ */
+const fromNumericString = (s: string, byteLength: number): Uint8Array => bigIntToBytes(BigInt(s), byteLength)
 
 /**
  * Convert inputs to snarkJS format
@@ -11,19 +32,19 @@ import type { Proof, SnarkJSCircuitInputFormat, TransactionBigintInputs, Transac
  */
 function standardToSnarkJSInput (circuitInputs: TransactionCircuitInputs): SnarkJSCircuitInputFormat {
   return {
-    merkleRoot: uint8ArrayToHexString(circuitInputs.merkleRoot),
-    boundParamsHash: uint8ArrayToHexString(circuitInputs.boundParamsHash),
-    nullifiers: circuitInputs.inputTXOs.map(txo => uint8ArrayToHexString(txo.nullifier)),
-    commitmentsOut: circuitInputs.outputTXOs.map(txo => uint8ArrayToHexString(txo.commitment)),
-    token: uint8ArrayToHexString(circuitInputs.token),
-    publicKey: circuitInputs.publicKey.map(uint8ArrayToHexString),
-    signature: circuitInputs.signature.map(uint8ArrayToHexString),
-    randomIn: circuitInputs.inputTXOs.map(txo => uint8ArrayToHexString(txo.randomIn)),
+    merkleRoot: toPrefixedHex(circuitInputs.merkleRoot),
+    boundParamsHash: toPrefixedHex(circuitInputs.boundParamsHash),
+    nullifiers: circuitInputs.inputTXOs.map(txo => toPrefixedHex(txo.nullifier)),
+    commitmentsOut: circuitInputs.outputTXOs.map(txo => toPrefixedHex(txo.commitment)),
+    token: toPrefixedHex(circuitInputs.token),
+    publicKey: circuitInputs.publicKey.map(toPrefixedHex),
+    signature: circuitInputs.signature.map(toPrefixedHex),
+    randomIn: circuitInputs.inputTXOs.map(txo => toPrefixedHex(txo.randomIn)),
     valueIn: circuitInputs.inputTXOs.map(txo => txo.valueIn.toString()),
-    pathElements: circuitInputs.inputTXOs.map(txo => txo.pathElements.map(uint8ArrayToHexString)),
+    pathElements: circuitInputs.inputTXOs.map(txo => txo.pathElements.map(toPrefixedHex)),
     leavesIndices: circuitInputs.inputTXOs.map(txo => txo.merkleleafPosition),
-    nullifyingKey: uint8ArrayToHexString(circuitInputs.nullifyingKey),
-    npkOut: circuitInputs.outputTXOs.map(txo => uint8ArrayToHexString(txo.npk)),
+    nullifyingKey: toPrefixedHex(circuitInputs.nullifyingKey),
+    npkOut: circuitInputs.outputTXOs.map(txo => toPrefixedHex(txo.npk)),
     valueOut: circuitInputs.outputTXOs.map(txo => txo.value.toString()),
   }
 }
@@ -34,22 +55,22 @@ function standardToSnarkJSInput (circuitInputs: TransactionCircuitInputs): Snark
  */
 function snarkJSToStandardInput (snarkJSInput: SnarkJSCircuitInputFormat): TransactionCircuitInputs {
   return {
-    merkleRoot: hexStringToUint8Array(snarkJSInput.merkleRoot),
-    boundParamsHash: hexStringToUint8Array(snarkJSInput.boundParamsHash),
-    token: hexStringToUint8Array(snarkJSInput.token),
-    nullifyingKey: hexStringToUint8Array(snarkJSInput.nullifyingKey),
-    publicKey: snarkJSInput.publicKey.map(hexStringToUint8Array),
-    signature: snarkJSInput.signature.map(hexStringToUint8Array),
+    merkleRoot: hexToBytes(snarkJSInput.merkleRoot),
+    boundParamsHash: hexToBytes(snarkJSInput.boundParamsHash),
+    token: hexToBytes(snarkJSInput.token),
+    nullifyingKey: hexToBytes(snarkJSInput.nullifyingKey),
+    publicKey: snarkJSInput.publicKey.map(hexToBytes),
+    signature: snarkJSInput.signature.map(hexToBytes),
     inputTXOs: snarkJSInput.nullifiers.map((_, i) => ({
-      nullifier: hexStringToUint8Array(snarkJSInput.nullifiers[i]!),
-      randomIn: hexStringToUint8Array(snarkJSInput.randomIn[i]!),
+      nullifier: hexToBytes(snarkJSInput.nullifiers[i]!),
+      randomIn: hexToBytes(snarkJSInput.randomIn[i]!),
       valueIn: BigInt(snarkJSInput.valueIn[i]!),
       merkleleafPosition: Number(snarkJSInput.leavesIndices[i]),
-      pathElements: snarkJSInput.pathElements[i]!.map(hexStringToUint8Array),
+      pathElements: snarkJSInput.pathElements[i]!.map(hexToBytes),
     })),
     outputTXOs: snarkJSInput.commitmentsOut.map((_, i) => ({
-      commitment: hexStringToUint8Array(snarkJSInput.commitmentsOut[i]!),
-      npk: hexStringToUint8Array(snarkJSInput.npkOut[i]!),
+      commitment: hexToBytes(snarkJSInput.commitmentsOut[i]!),
+      npk: hexToBytes(snarkJSInput.npkOut[i]!),
       value: BigInt(snarkJSInput.valueOut[i]!),
     })),
   }
@@ -62,12 +83,12 @@ function snarkJSToStandardInput (snarkJSInput: SnarkJSCircuitInputFormat): Trans
  */
 function snarkJSToStandardProof (proof: SnarkjsProof): Proof {
   return {
-    a: { x: numberStringToUint8Array(proof.pi_a[0], 32), y: numberStringToUint8Array(proof.pi_a[1], 32) },
+    a: { x: fromNumericString(proof.pi_a[0], 32), y: fromNumericString(proof.pi_a[1], 32) },
     b: {
-      x: [numberStringToUint8Array(proof.pi_b[0][1], 32), numberStringToUint8Array(proof.pi_b[0][0], 32)],
-      y: [numberStringToUint8Array(proof.pi_b[1][1], 32), numberStringToUint8Array(proof.pi_b[1][0], 32)],
+      x: [fromNumericString(proof.pi_b[0][1], 32), fromNumericString(proof.pi_b[0][0], 32)],
+      y: [fromNumericString(proof.pi_b[1][1], 32), fromNumericString(proof.pi_b[1][0], 32)],
     },
-    c: { x: numberStringToUint8Array(proof.pi_c[0], 32), y: numberStringToUint8Array(proof.pi_c[1], 32) },
+    c: { x: fromNumericString(proof.pi_c[0], 32), y: fromNumericString(proof.pi_c[1], 32) },
   }
 }
 
@@ -95,12 +116,12 @@ function extractPublicInputsFromCircuitInputs (circuitInputs: TransactionCircuit
 function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
   return {
     protocol: 'groth16',
-    pi_a: [uint8ArrayToNumberString(proof.a.x), uint8ArrayToNumberString(proof.a.y)],
+    pi_a: [toDecimalString(proof.a.x), toDecimalString(proof.a.y)],
     pi_b: [
-      [uint8ArrayToNumberString(proof.b.x[1]), uint8ArrayToNumberString(proof.b.x[0])],
-      [uint8ArrayToNumberString(proof.b.y[1]), uint8ArrayToNumberString(proof.b.y[0])],
+      [toDecimalString(proof.b.x[1]), toDecimalString(proof.b.x[0])],
+      [toDecimalString(proof.b.y[1]), toDecimalString(proof.b.y[0])],
     ],
-    pi_c: [uint8ArrayToNumberString(proof.c.x), uint8ArrayToNumberString(proof.c.y)]
+    pi_c: [toDecimalString(proof.c.x), toDecimalString(proof.c.y)]
   }
 }
 /**
@@ -110,10 +131,10 @@ function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
  */
 function standardToSnarkJSPublicInputs (publicInputs: TransactionPublicInputs) : string[] {
   return [
-    uint8ArrayToNumberString(publicInputs.merkleRoot),
-    uint8ArrayToNumberString(publicInputs.boundParams),
-    ...publicInputs.nullifiers.map(uint8ArrayToNumberString),
-    ...publicInputs.commitments.map(uint8ArrayToNumberString)
+    toDecimalString(publicInputs.merkleRoot),
+    toDecimalString(publicInputs.boundParams),
+    ...publicInputs.nullifiers.map(toDecimalString),
+    ...publicInputs.commitments.map(toDecimalString)
   ]
 }
 
@@ -129,7 +150,7 @@ function bigintToTransactionCircuitInputs (inputs: TransactionBigintInputs): Tra
    * @param val - Bigint field element.
    * @returns 32-byte Uint8Array representation of the field element.
    */
-  const toBytes = (val: bigint) => numberStringToUint8Array(val.toString(), 32)
+  const toBytes = (val: bigint) => fromNumericString(val.toString(), 32)
   const numInputs = inputs.leavesIndices.length
   const treeDepth = numInputs > 0 ? inputs.pathElements.length / numInputs : 0
 

@@ -23,11 +23,3 @@ export { SnarkjsPoiProver } from './poi/prover'
 
 export { createGroth16ForEngine, createGroth16FromTransactionProver, createGroth16FromPOIProver } from './groth16-adapter'
 export type { Groth16Prover } from './groth16-adapter'
-
-export {
-  hexStringToUint8Array,
-  uint8ArrayToHexString,
-  uint8ArrayToNumberString,
-  numberStringToUint8Array,
-  arrayToByteLength,
-} from './bytes'

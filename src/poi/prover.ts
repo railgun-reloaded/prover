@@ -1,8 +1,8 @@
+import { bigIntToBytes } from '@railgun-reloaded/bytes'
 import type { SnarkjsProof } from 'snarkjs'
 import { curves, groth16 } from 'snarkjs'
 
 import type { BaseProver } from '../base-prover'
-import { numberStringToUint8Array } from '../bytes'
 
 import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatter'
 import type { POICircuitInputs, POIPublicInputs, Proof, ProverArtifacts } from './types'
@@ -55,7 +55,7 @@ export class SnarkjsPoiProver implements BaseProver<POICircuitInputs, POIPublicI
 
     const blindedCommitmentsLength = circuitInputs.poiMerkleroots.length
 
-    const blindedCommitmentsOut = publicSignals.slice(0, blindedCommitmentsLength).map((s: string) => numberStringToUint8Array(s, 32))
+    const blindedCommitmentsOut = publicSignals.slice(0, blindedCommitmentsLength).map((s: string) => bigIntToBytes(BigInt(s), 32))
     const standardPublicInputs = extractPublicInputsFromCircuitInputs(circuitInputs, standardProof, blindedCommitmentsOut)
 
     const snarkJSFormattedPublicInputs = standardToSnarkJSPublicInputs(standardPublicInputs)

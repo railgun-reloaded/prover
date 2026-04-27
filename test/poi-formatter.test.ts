@@ -1,7 +1,7 @@
-/* eslint-disable jsdoc/require-jsdoc */import { test } from 'brittle'
+/* eslint-disable jsdoc/require-jsdoc */import { bigIntToBytes, bytesToBigInt } from '@railgun-reloaded/bytes'
+import { test } from 'brittle'
 import type { SnarkjsProof } from 'snarkjs'
 
-import { numberStringToUint8Array, uint8ArrayToNumberString } from '../src/bytes'
 import {
   extractPublicInputsFromCircuitInputs,
   snarkJSToStandardInput,
@@ -12,6 +12,9 @@ import {
 } from '../src/poi/formatter'
 import type { POICircuitInputs, POIPublicInputs } from '../src/poi/types'
 import type { Proof } from '../src/transaction/types'
+
+const numberStringToUint8Array = (s: string, n: number): Uint8Array => bigIntToBytes(BigInt(s), n)
+const uint8ArrayToNumberString = (b: Uint8Array): string => bytesToBigInt(b).toString()
 
 const createMockUint8Array = (value: number): Uint8Array => {
   return numberStringToUint8Array(value.toString(), 32)

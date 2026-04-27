@@ -1,8 +1,29 @@
+import { bigIntToBytes, bytesToBigInt, bytesToHex, hexToBytes } from '@railgun-reloaded/bytes'
 import type { SnarkjsProof } from 'snarkjs'
 
-import { hexStringToUint8Array, numberStringToUint8Array, uint8ArrayToHexString, uint8ArrayToNumberString } from '../bytes'
-
 import type { POIBigintInputs, POICircuitInputs, POIPublicInputs, POISnarkjsFormattedCircuitInputs, Proof } from './types'
+
+/**
+ * Encodes a byte array as a `0x`-prefixed lowercase hex string.
+ * @param b - Bytes to encode.
+ * @returns `0x`-prefixed hex string.
+ */
+const toPrefixedHex = (b: Uint8Array): string => bytesToHex(b, { prefix: true })
+
+/**
+ * Encodes a byte array as a decimal big-integer string.
+ * @param b - Bytes to encode (big-endian).
+ * @returns Decimal string representation.
+ */
+const toDecimalString = (b: Uint8Array): string => bytesToBigInt(b).toString()
+
+/**
+ * Decodes a decimal or `0x`-prefixed hex string into a fixed-length byte array.
+ * @param s - Decimal or hex numeric string.
+ * @param byteLength - Target byte length.
+ * @returns Big-endian byte array of exactly `byteLength` bytes.
+ */
+const fromNumericString = (s: string, byteLength: number): Uint8Array => bigIntToBytes(BigInt(s), byteLength)
 
 /**
  * Convert inputs to snarkJS format
@@ -11,26 +32,26 @@ import type { POIBigintInputs, POICircuitInputs, POIPublicInputs, POISnarkjsForm
  */
 function standardToSnarkJSInput (circuitInputs: POICircuitInputs): POISnarkjsFormattedCircuitInputs {
   return {
-    anyRailgunTxidMerklerootAfterTransaction: uint8ArrayToHexString(circuitInputs.anyRailgunTxidMerklerootAfterTransaction),
-    poiMerkleroots: circuitInputs.poiMerkleroots.map(uint8ArrayToHexString),
-    boundParamsHash: uint8ArrayToHexString(circuitInputs.boundParamsHash),
-    nullifiers: circuitInputs.nullifiers.map(uint8ArrayToHexString),
-    commitmentsOut: circuitInputs.commitmentsOut.map(uint8ArrayToHexString),
-    spendingPublicKey: circuitInputs.spendingPublicKey.map(uint8ArrayToHexString),
-    nullifyingKey: uint8ArrayToHexString(circuitInputs.nullifyingKey),
-    token: uint8ArrayToHexString(circuitInputs.token),
-    randomsIn: circuitInputs.randomsIn.map(uint8ArrayToHexString),
+    anyRailgunTxidMerklerootAfterTransaction: toPrefixedHex(circuitInputs.anyRailgunTxidMerklerootAfterTransaction),
+    poiMerkleroots: circuitInputs.poiMerkleroots.map(toPrefixedHex),
+    boundParamsHash: toPrefixedHex(circuitInputs.boundParamsHash),
+    nullifiers: circuitInputs.nullifiers.map(toPrefixedHex),
+    commitmentsOut: circuitInputs.commitmentsOut.map(toPrefixedHex),
+    spendingPublicKey: circuitInputs.spendingPublicKey.map(toPrefixedHex),
+    nullifyingKey: toPrefixedHex(circuitInputs.nullifyingKey),
+    token: toPrefixedHex(circuitInputs.token),
+    randomsIn: circuitInputs.randomsIn.map(toPrefixedHex),
     valuesIn: circuitInputs.valuesIn.map(val => val.toString()),
     utxoPositionsIn: circuitInputs.utxoPositionsIn,
     utxoTreeIn: circuitInputs.utxoTreeIn,
-    npksOut: circuitInputs.npksOut.map(uint8ArrayToHexString),
+    npksOut: circuitInputs.npksOut.map(toPrefixedHex),
     valuesOut: circuitInputs.valuesOut.map(val => val.toString()),
-    utxoBatchGlobalStartPositionOut: uint8ArrayToHexString(circuitInputs.utxoBatchGlobalStartPositionOut),
-    railgunTxidIfHasUnshield: uint8ArrayToHexString(circuitInputs.railgunTxidIfHasUnshield),
+    utxoBatchGlobalStartPositionOut: toPrefixedHex(circuitInputs.utxoBatchGlobalStartPositionOut),
+    railgunTxidIfHasUnshield: toPrefixedHex(circuitInputs.railgunTxidIfHasUnshield),
     railgunTxidMerkleProofIndices: circuitInputs.railgunTxidMerkleProofIndices,
-    railgunTxidMerkleProofPathElements: circuitInputs.railgunTxidMerkleProofPathElements.map(uint8ArrayToHexString),
+    railgunTxidMerkleProofPathElements: circuitInputs.railgunTxidMerkleProofPathElements.map(toPrefixedHex),
     poiInMerkleProofIndices: circuitInputs.poiInMerkleProofIndices.map(val => val.toString()),
-    poiInMerkleProofPathElements: circuitInputs.poiInMerkleProofPathElements.map(txo => txo.map(uint8ArrayToHexString))
+    poiInMerkleProofPathElements: circuitInputs.poiInMerkleProofPathElements.map(txo => txo.map(toPrefixedHex))
   }
 }
 /**
@@ -40,26 +61,26 @@ function standardToSnarkJSInput (circuitInputs: POICircuitInputs): POISnarkjsFor
  */
 function snarkJSToStandardInput (snarkJSInput: POISnarkjsFormattedCircuitInputs): POICircuitInputs {
   return {
-    anyRailgunTxidMerklerootAfterTransaction: hexStringToUint8Array(snarkJSInput.anyRailgunTxidMerklerootAfterTransaction),
-    poiMerkleroots: snarkJSInput.poiMerkleroots.map(hexStringToUint8Array),
-    boundParamsHash: hexStringToUint8Array(snarkJSInput.boundParamsHash),
-    nullifiers: snarkJSInput.nullifiers.map(hexStringToUint8Array),
-    commitmentsOut: snarkJSInput.commitmentsOut.map(hexStringToUint8Array),
-    spendingPublicKey: snarkJSInput.spendingPublicKey.map(hexStringToUint8Array),
-    nullifyingKey: hexStringToUint8Array(snarkJSInput.nullifyingKey),
-    token: hexStringToUint8Array(snarkJSInput.token),
-    randomsIn: snarkJSInput.randomsIn.map(hexStringToUint8Array),
+    anyRailgunTxidMerklerootAfterTransaction: hexToBytes(snarkJSInput.anyRailgunTxidMerklerootAfterTransaction),
+    poiMerkleroots: snarkJSInput.poiMerkleroots.map(hexToBytes),
+    boundParamsHash: hexToBytes(snarkJSInput.boundParamsHash),
+    nullifiers: snarkJSInput.nullifiers.map(hexToBytes),
+    commitmentsOut: snarkJSInput.commitmentsOut.map(hexToBytes),
+    spendingPublicKey: snarkJSInput.spendingPublicKey.map(hexToBytes),
+    nullifyingKey: hexToBytes(snarkJSInput.nullifyingKey),
+    token: hexToBytes(snarkJSInput.token),
+    randomsIn: snarkJSInput.randomsIn.map(hexToBytes),
     valuesIn: snarkJSInput.valuesIn.map(val => BigInt(val)),
     utxoPositionsIn: snarkJSInput.utxoPositionsIn,
     utxoTreeIn: snarkJSInput.utxoTreeIn,
-    npksOut: snarkJSInput.npksOut.map(hexStringToUint8Array),
+    npksOut: snarkJSInput.npksOut.map(hexToBytes),
     valuesOut: snarkJSInput.valuesOut.map(val => BigInt(val)),
-    utxoBatchGlobalStartPositionOut: hexStringToUint8Array(snarkJSInput.utxoBatchGlobalStartPositionOut),
-    railgunTxidIfHasUnshield: hexStringToUint8Array(snarkJSInput.railgunTxidIfHasUnshield),
+    utxoBatchGlobalStartPositionOut: hexToBytes(snarkJSInput.utxoBatchGlobalStartPositionOut),
+    railgunTxidIfHasUnshield: hexToBytes(snarkJSInput.railgunTxidIfHasUnshield),
     railgunTxidMerkleProofIndices: snarkJSInput.railgunTxidMerkleProofIndices,
-    railgunTxidMerkleProofPathElements: snarkJSInput.railgunTxidMerkleProofPathElements.map(hexStringToUint8Array),
+    railgunTxidMerkleProofPathElements: snarkJSInput.railgunTxidMerkleProofPathElements.map(hexToBytes),
     poiInMerkleProofIndices: snarkJSInput.poiInMerkleProofIndices.map(val => Number(val)),
-    poiInMerkleProofPathElements: snarkJSInput.poiInMerkleProofPathElements.map(pathArray => pathArray.map(hexStringToUint8Array))
+    poiInMerkleProofPathElements: snarkJSInput.poiInMerkleProofPathElements.map(pathArray => pathArray.map(hexToBytes))
   }
 }
 
@@ -70,12 +91,12 @@ function snarkJSToStandardInput (snarkJSInput: POISnarkjsFormattedCircuitInputs)
  */
 function snarkJSToStandardProof (proof: SnarkjsProof): Proof {
   return {
-    a: { x: numberStringToUint8Array(proof.pi_a[0], 32), y: numberStringToUint8Array(proof.pi_a[1], 32) },
+    a: { x: fromNumericString(proof.pi_a[0], 32), y: fromNumericString(proof.pi_a[1], 32) },
     b: {
-      x: [numberStringToUint8Array(proof.pi_b[0][1], 32), numberStringToUint8Array(proof.pi_b[0][0], 32)],
-      y: [numberStringToUint8Array(proof.pi_b[1][1], 32), numberStringToUint8Array(proof.pi_b[1][0], 32)],
+      x: [fromNumericString(proof.pi_b[0][1], 32), fromNumericString(proof.pi_b[0][0], 32)],
+      y: [fromNumericString(proof.pi_b[1][1], 32), fromNumericString(proof.pi_b[1][0], 32)],
     },
-    c: { x: numberStringToUint8Array(proof.pi_c[0], 32), y: numberStringToUint8Array(proof.pi_c[1], 32) },
+    c: { x: fromNumericString(proof.pi_c[0], 32), y: fromNumericString(proof.pi_c[1], 32) },
   }
 }
 
@@ -104,12 +125,12 @@ function extractPublicInputsFromCircuitInputs (circuitInputs: POICircuitInputs, 
 function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
   return {
     protocol: 'groth16',
-    pi_a: [uint8ArrayToNumberString(proof.a.x), uint8ArrayToNumberString(proof.a.y)],
+    pi_a: [toDecimalString(proof.a.x), toDecimalString(proof.a.y)],
     pi_b: [
-      [uint8ArrayToNumberString(proof.b.x[1]), uint8ArrayToNumberString(proof.b.x[0])],
-      [uint8ArrayToNumberString(proof.b.y[1]), uint8ArrayToNumberString(proof.b.y[0])],
+      [toDecimalString(proof.b.x[1]), toDecimalString(proof.b.x[0])],
+      [toDecimalString(proof.b.y[1]), toDecimalString(proof.b.y[0])],
     ],
-    pi_c: [uint8ArrayToNumberString(proof.c.x), uint8ArrayToNumberString(proof.c.y)]
+    pi_c: [toDecimalString(proof.c.x), toDecimalString(proof.c.y)]
   }
 }
 /**
@@ -119,10 +140,10 @@ function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
  */
 function standardToSnarkJSPublicInputs (publicInputs: POIPublicInputs) : string[] {
   return [
-    ...publicInputs.blindedCommitmentsOut.map(uint8ArrayToNumberString),
-    uint8ArrayToNumberString(publicInputs.anyRailgunTxidMerklerootAfterTransaction),
-    uint8ArrayToNumberString(publicInputs.railgunTxidIfHasUnshield),
-    ...publicInputs.poiMerkleroots.map(uint8ArrayToNumberString)
+    ...publicInputs.blindedCommitmentsOut.map(toDecimalString),
+    toDecimalString(publicInputs.anyRailgunTxidMerklerootAfterTransaction),
+    toDecimalString(publicInputs.railgunTxidIfHasUnshield),
+    ...publicInputs.poiMerkleroots.map(toDecimalString)
   ]
 }
 
@@ -137,7 +158,7 @@ function bigintToPOICircuitInputs (inputs: POIBigintInputs): POICircuitInputs {
    * @param val - Bigint field element.
    * @returns 32-byte Uint8Array representation of the field element.
    */
-  const toBytes = (val: bigint) => numberStringToUint8Array(val.toString(), 32)
+  const toBytes = (val: bigint) => fromNumericString(val.toString(), 32)
 
   return {
     anyRailgunTxidMerklerootAfterTransaction: toBytes(inputs.anyRailgunTxidMerklerootAfterTransaction),
