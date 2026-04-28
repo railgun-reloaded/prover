@@ -1,4 +1,4 @@
-/* eslint-disable jsdoc/require-jsdoc */import { bigIntToBytes, bytesToBigInt } from '@railgun-reloaded/bytes'
+import { bigIntToBytes, bytesToBigInt } from '@railgun-reloaded/bytes'
 import { test } from 'brittle'
 import type { SnarkjsProof } from 'snarkjs'
 
@@ -13,10 +13,21 @@ import {
 import type { POICircuitInputs, POIPublicInputs } from '../src/poi/types'
 import type { Proof } from '../src/transaction/types'
 
+/**
+ * Builds a 32-byte big-endian `Uint8Array` from a small numeric value, used
+ * to compactly construct deterministic field-element fixtures.
+ * @param value - Non-negative integer encoded as a 32-byte field element.
+ * @returns A 32-byte `Uint8Array` representing `value`.
+ */
 const createMockUint8Array = (value: number): Uint8Array => {
   return bigIntToBytes(BigInt(value), 32)
 }
 
+/**
+ * Builds a fully populated `POICircuitInputs` object with deterministic
+ * mock field elements for use across the formatter tests.
+ * @returns A `POICircuitInputs` shaped like a real circuit input batch.
+ */
 const createMockCircuitInputs = (): POICircuitInputs => {
   return {
     anyRailgunTxidMerklerootAfterTransaction: createMockUint8Array(123),
@@ -67,6 +78,12 @@ const createMockCircuitInputs = (): POICircuitInputs => {
   }
 }
 
+/**
+ * Builds a deterministic `SnarkjsProof` whose pi_a/pi_b/pi_c entries are
+ * recognizable decimal strings — chosen so reversal-order assertions can
+ * spot-check that pi_b is being remapped correctly.
+ * @returns A `SnarkjsProof` shaped like a real groth16 prover output.
+ */
 const createMockSnarkjsProof = (): SnarkjsProof => {
   return {
     protocol: 'groth16',
@@ -79,6 +96,12 @@ const createMockSnarkjsProof = (): SnarkjsProof => {
   }
 }
 
+/**
+ * Builds a `Proof` whose field elements mirror `createMockSnarkjsProof`
+ * after the snarkJS → standard reversal, so the two factories pair up
+ * for round-trip assertions.
+ * @returns A `Proof` with deterministic 32-byte field elements.
+ */
 const createMockStandardProof = (): Proof => {
   return {
     a: {
