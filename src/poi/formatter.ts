@@ -4,54 +4,32 @@ import type { SnarkjsProof } from 'snarkjs'
 import type { POIBigintInputs, POICircuitInputs, POIPublicInputs, POISnarkjsFormattedCircuitInputs, Proof } from './types'
 
 /**
- * Encodes a byte array as a `0x`-prefixed lowercase hex string.
- * @param b - Bytes to encode.
- * @returns `0x`-prefixed hex string.
- */
-const toPrefixedHex = (b: Uint8Array): string => bytesToHex(b, { prefix: true })
-
-/**
- * Encodes a byte array as a decimal big-integer string.
- * @param b - Bytes to encode (big-endian).
- * @returns Decimal string representation.
- */
-const toDecimalString = (b: Uint8Array): string => bytesToBigInt(b).toString()
-
-/**
- * Decodes a decimal or `0x`-prefixed hex string into a fixed-length byte array.
- * @param s - Decimal or hex numeric string.
- * @param byteLength - Target byte length.
- * @returns Big-endian byte array of exactly `byteLength` bytes.
- */
-const fromNumericString = (s: string, byteLength: number): Uint8Array => bigIntToBytes(BigInt(s), byteLength)
-
-/**
  * Convert inputs to snarkJS format
  * @param circuitInputs - Circuit inputs to format
  * @returns Formatted snarkJS inputs
  */
 function standardToSnarkJSInput (circuitInputs: POICircuitInputs): POISnarkjsFormattedCircuitInputs {
   return {
-    anyRailgunTxidMerklerootAfterTransaction: toPrefixedHex(circuitInputs.anyRailgunTxidMerklerootAfterTransaction),
-    poiMerkleroots: circuitInputs.poiMerkleroots.map(toPrefixedHex),
-    boundParamsHash: toPrefixedHex(circuitInputs.boundParamsHash),
-    nullifiers: circuitInputs.nullifiers.map(toPrefixedHex),
-    commitmentsOut: circuitInputs.commitmentsOut.map(toPrefixedHex),
-    spendingPublicKey: circuitInputs.spendingPublicKey.map(toPrefixedHex),
-    nullifyingKey: toPrefixedHex(circuitInputs.nullifyingKey),
-    token: toPrefixedHex(circuitInputs.token),
-    randomsIn: circuitInputs.randomsIn.map(toPrefixedHex),
+    anyRailgunTxidMerklerootAfterTransaction: bytesToHex(circuitInputs.anyRailgunTxidMerklerootAfterTransaction, { prefix: true }),
+    poiMerkleroots: circuitInputs.poiMerkleroots.map((b) => bytesToHex(b, { prefix: true })),
+    boundParamsHash: bytesToHex(circuitInputs.boundParamsHash, { prefix: true }),
+    nullifiers: circuitInputs.nullifiers.map((b) => bytesToHex(b, { prefix: true })),
+    commitmentsOut: circuitInputs.commitmentsOut.map((b) => bytesToHex(b, { prefix: true })),
+    spendingPublicKey: circuitInputs.spendingPublicKey.map((b) => bytesToHex(b, { prefix: true })),
+    nullifyingKey: bytesToHex(circuitInputs.nullifyingKey, { prefix: true }),
+    token: bytesToHex(circuitInputs.token, { prefix: true }),
+    randomsIn: circuitInputs.randomsIn.map((b) => bytesToHex(b, { prefix: true })),
     valuesIn: circuitInputs.valuesIn.map(val => val.toString()),
     utxoPositionsIn: circuitInputs.utxoPositionsIn,
     utxoTreeIn: circuitInputs.utxoTreeIn,
-    npksOut: circuitInputs.npksOut.map(toPrefixedHex),
+    npksOut: circuitInputs.npksOut.map((b) => bytesToHex(b, { prefix: true })),
     valuesOut: circuitInputs.valuesOut.map(val => val.toString()),
-    utxoBatchGlobalStartPositionOut: toPrefixedHex(circuitInputs.utxoBatchGlobalStartPositionOut),
-    railgunTxidIfHasUnshield: toPrefixedHex(circuitInputs.railgunTxidIfHasUnshield),
+    utxoBatchGlobalStartPositionOut: bytesToHex(circuitInputs.utxoBatchGlobalStartPositionOut, { prefix: true }),
+    railgunTxidIfHasUnshield: bytesToHex(circuitInputs.railgunTxidIfHasUnshield, { prefix: true }),
     railgunTxidMerkleProofIndices: circuitInputs.railgunTxidMerkleProofIndices,
-    railgunTxidMerkleProofPathElements: circuitInputs.railgunTxidMerkleProofPathElements.map(toPrefixedHex),
+    railgunTxidMerkleProofPathElements: circuitInputs.railgunTxidMerkleProofPathElements.map((b) => bytesToHex(b, { prefix: true })),
     poiInMerkleProofIndices: circuitInputs.poiInMerkleProofIndices.map(val => val.toString()),
-    poiInMerkleProofPathElements: circuitInputs.poiInMerkleProofPathElements.map(txo => txo.map(toPrefixedHex))
+    poiInMerkleProofPathElements: circuitInputs.poiInMerkleProofPathElements.map(txo => txo.map((b) => bytesToHex(b, { prefix: true })))
   }
 }
 /**
@@ -62,25 +40,25 @@ function standardToSnarkJSInput (circuitInputs: POICircuitInputs): POISnarkjsFor
 function snarkJSToStandardInput (snarkJSInput: POISnarkjsFormattedCircuitInputs): POICircuitInputs {
   return {
     anyRailgunTxidMerklerootAfterTransaction: hexToBytes(snarkJSInput.anyRailgunTxidMerklerootAfterTransaction),
-    poiMerkleroots: snarkJSInput.poiMerkleroots.map(hexToBytes),
+    poiMerkleroots: snarkJSInput.poiMerkleroots.map((b) => hexToBytes(b)),
     boundParamsHash: hexToBytes(snarkJSInput.boundParamsHash),
-    nullifiers: snarkJSInput.nullifiers.map(hexToBytes),
-    commitmentsOut: snarkJSInput.commitmentsOut.map(hexToBytes),
-    spendingPublicKey: snarkJSInput.spendingPublicKey.map(hexToBytes),
+    nullifiers: snarkJSInput.nullifiers.map((b) => hexToBytes(b)),
+    commitmentsOut: snarkJSInput.commitmentsOut.map((b) => hexToBytes(b)),
+    spendingPublicKey: snarkJSInput.spendingPublicKey.map((b) => hexToBytes(b)),
     nullifyingKey: hexToBytes(snarkJSInput.nullifyingKey),
     token: hexToBytes(snarkJSInput.token),
-    randomsIn: snarkJSInput.randomsIn.map(hexToBytes),
+    randomsIn: snarkJSInput.randomsIn.map((b) => hexToBytes(b)),
     valuesIn: snarkJSInput.valuesIn.map(val => BigInt(val)),
     utxoPositionsIn: snarkJSInput.utxoPositionsIn,
     utxoTreeIn: snarkJSInput.utxoTreeIn,
-    npksOut: snarkJSInput.npksOut.map(hexToBytes),
+    npksOut: snarkJSInput.npksOut.map((b) => hexToBytes(b)),
     valuesOut: snarkJSInput.valuesOut.map(val => BigInt(val)),
     utxoBatchGlobalStartPositionOut: hexToBytes(snarkJSInput.utxoBatchGlobalStartPositionOut),
     railgunTxidIfHasUnshield: hexToBytes(snarkJSInput.railgunTxidIfHasUnshield),
     railgunTxidMerkleProofIndices: snarkJSInput.railgunTxidMerkleProofIndices,
-    railgunTxidMerkleProofPathElements: snarkJSInput.railgunTxidMerkleProofPathElements.map(hexToBytes),
+    railgunTxidMerkleProofPathElements: snarkJSInput.railgunTxidMerkleProofPathElements.map((b) => hexToBytes(b)),
     poiInMerkleProofIndices: snarkJSInput.poiInMerkleProofIndices.map(val => Number(val)),
-    poiInMerkleProofPathElements: snarkJSInput.poiInMerkleProofPathElements.map(pathArray => pathArray.map(hexToBytes))
+    poiInMerkleProofPathElements: snarkJSInput.poiInMerkleProofPathElements.map(pathArray => pathArray.map((b) => hexToBytes(b)))
   }
 }
 
@@ -91,12 +69,12 @@ function snarkJSToStandardInput (snarkJSInput: POISnarkjsFormattedCircuitInputs)
  */
 function snarkJSToStandardProof (proof: SnarkjsProof): Proof {
   return {
-    a: { x: fromNumericString(proof.pi_a[0], 32), y: fromNumericString(proof.pi_a[1], 32) },
+    a: { x: bigIntToBytes(BigInt(proof.pi_a[0]), 32), y: bigIntToBytes(BigInt(proof.pi_a[1]), 32) },
     b: {
-      x: [fromNumericString(proof.pi_b[0][1], 32), fromNumericString(proof.pi_b[0][0], 32)],
-      y: [fromNumericString(proof.pi_b[1][1], 32), fromNumericString(proof.pi_b[1][0], 32)],
+      x: [bigIntToBytes(BigInt(proof.pi_b[0][1]), 32), bigIntToBytes(BigInt(proof.pi_b[0][0]), 32)],
+      y: [bigIntToBytes(BigInt(proof.pi_b[1][1]), 32), bigIntToBytes(BigInt(proof.pi_b[1][0]), 32)],
     },
-    c: { x: fromNumericString(proof.pi_c[0], 32), y: fromNumericString(proof.pi_c[1], 32) },
+    c: { x: bigIntToBytes(BigInt(proof.pi_c[0]), 32), y: bigIntToBytes(BigInt(proof.pi_c[1]), 32) },
   }
 }
 
@@ -125,12 +103,12 @@ function extractPublicInputsFromCircuitInputs (circuitInputs: POICircuitInputs, 
 function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
   return {
     protocol: 'groth16',
-    pi_a: [toDecimalString(proof.a.x), toDecimalString(proof.a.y)],
+    pi_a: [bytesToBigInt(proof.a.x).toString(), bytesToBigInt(proof.a.y).toString()],
     pi_b: [
-      [toDecimalString(proof.b.x[1]), toDecimalString(proof.b.x[0])],
-      [toDecimalString(proof.b.y[1]), toDecimalString(proof.b.y[0])],
+      [bytesToBigInt(proof.b.x[1]).toString(), bytesToBigInt(proof.b.x[0]).toString()],
+      [bytesToBigInt(proof.b.y[1]).toString(), bytesToBigInt(proof.b.y[0]).toString()],
     ],
-    pi_c: [toDecimalString(proof.c.x), toDecimalString(proof.c.y)]
+    pi_c: [bytesToBigInt(proof.c.x).toString(), bytesToBigInt(proof.c.y).toString()]
   }
 }
 /**
@@ -140,10 +118,10 @@ function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
  */
 function standardToSnarkJSPublicInputs (publicInputs: POIPublicInputs) : string[] {
   return [
-    ...publicInputs.blindedCommitmentsOut.map(toDecimalString),
-    toDecimalString(publicInputs.anyRailgunTxidMerklerootAfterTransaction),
-    toDecimalString(publicInputs.railgunTxidIfHasUnshield),
-    ...publicInputs.poiMerkleroots.map(toDecimalString)
+    ...publicInputs.blindedCommitmentsOut.map((b) => bytesToBigInt(b).toString()),
+    bytesToBigInt(publicInputs.anyRailgunTxidMerklerootAfterTransaction).toString(),
+    bytesToBigInt(publicInputs.railgunTxidIfHasUnshield).toString(),
+    ...publicInputs.poiMerkleroots.map((b) => bytesToBigInt(b).toString())
   ]
 }
 
@@ -158,7 +136,7 @@ function bigintToPOICircuitInputs (inputs: POIBigintInputs): POICircuitInputs {
    * @param val - Bigint field element.
    * @returns 32-byte Uint8Array representation of the field element.
    */
-  const toBytes = (val: bigint) => fromNumericString(val.toString(), 32)
+  const toBytes = (val: bigint) => bigIntToBytes(val, 32)
 
   return {
     anyRailgunTxidMerklerootAfterTransaction: toBytes(inputs.anyRailgunTxidMerklerootAfterTransaction),

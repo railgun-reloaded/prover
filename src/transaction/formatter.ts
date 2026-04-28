@@ -4,47 +4,25 @@ import type { SnarkjsProof } from 'snarkjs'
 import type { Proof, SnarkJSCircuitInputFormat, TransactionBigintInputs, TransactionCircuitInputs, TransactionPublicInputs } from './types'
 
 /**
- * Encodes a byte array as a `0x`-prefixed lowercase hex string.
- * @param b - Bytes to encode.
- * @returns `0x`-prefixed hex string.
- */
-const toPrefixedHex = (b: Uint8Array): string => bytesToHex(b, { prefix: true })
-
-/**
- * Encodes a byte array as a decimal big-integer string.
- * @param b - Bytes to encode (big-endian).
- * @returns Decimal string representation.
- */
-const toDecimalString = (b: Uint8Array): string => bytesToBigInt(b).toString()
-
-/**
- * Decodes a decimal or `0x`-prefixed hex string into a fixed-length byte array.
- * @param s - Decimal or hex numeric string.
- * @param byteLength - Target byte length.
- * @returns Big-endian byte array of exactly `byteLength` bytes.
- */
-const fromNumericString = (s: string, byteLength: number): Uint8Array => bigIntToBytes(BigInt(s), byteLength)
-
-/**
  * Convert inputs to snarkJS format
  * @param circuitInputs - Circuit inputs to format
  * @returns Formatted snarkJS inputs
  */
 function standardToSnarkJSInput (circuitInputs: TransactionCircuitInputs): SnarkJSCircuitInputFormat {
   return {
-    merkleRoot: toPrefixedHex(circuitInputs.merkleRoot),
-    boundParamsHash: toPrefixedHex(circuitInputs.boundParamsHash),
-    nullifiers: circuitInputs.inputTXOs.map(txo => toPrefixedHex(txo.nullifier)),
-    commitmentsOut: circuitInputs.outputTXOs.map(txo => toPrefixedHex(txo.commitment)),
-    token: toPrefixedHex(circuitInputs.token),
-    publicKey: circuitInputs.publicKey.map(toPrefixedHex),
-    signature: circuitInputs.signature.map(toPrefixedHex),
-    randomIn: circuitInputs.inputTXOs.map(txo => toPrefixedHex(txo.randomIn)),
+    merkleRoot: bytesToHex(circuitInputs.merkleRoot, { prefix: true }),
+    boundParamsHash: bytesToHex(circuitInputs.boundParamsHash, { prefix: true }),
+    nullifiers: circuitInputs.inputTXOs.map(txo => bytesToHex(txo.nullifier, { prefix: true })),
+    commitmentsOut: circuitInputs.outputTXOs.map(txo => bytesToHex(txo.commitment, { prefix: true })),
+    token: bytesToHex(circuitInputs.token, { prefix: true }),
+    publicKey: circuitInputs.publicKey.map((b) => bytesToHex(b, { prefix: true })),
+    signature: circuitInputs.signature.map((b) => bytesToHex(b, { prefix: true })),
+    randomIn: circuitInputs.inputTXOs.map(txo => bytesToHex(txo.randomIn, { prefix: true })),
     valueIn: circuitInputs.inputTXOs.map(txo => txo.valueIn.toString()),
-    pathElements: circuitInputs.inputTXOs.map(txo => txo.pathElements.map(toPrefixedHex)),
+    pathElements: circuitInputs.inputTXOs.map(txo => txo.pathElements.map((b) => bytesToHex(b, { prefix: true }))),
     leavesIndices: circuitInputs.inputTXOs.map(txo => txo.merkleleafPosition),
-    nullifyingKey: toPrefixedHex(circuitInputs.nullifyingKey),
-    npkOut: circuitInputs.outputTXOs.map(txo => toPrefixedHex(txo.npk)),
+    nullifyingKey: bytesToHex(circuitInputs.nullifyingKey, { prefix: true }),
+    npkOut: circuitInputs.outputTXOs.map(txo => bytesToHex(txo.npk, { prefix: true })),
     valueOut: circuitInputs.outputTXOs.map(txo => txo.value.toString()),
   }
 }
@@ -59,14 +37,14 @@ function snarkJSToStandardInput (snarkJSInput: SnarkJSCircuitInputFormat): Trans
     boundParamsHash: hexToBytes(snarkJSInput.boundParamsHash),
     token: hexToBytes(snarkJSInput.token),
     nullifyingKey: hexToBytes(snarkJSInput.nullifyingKey),
-    publicKey: snarkJSInput.publicKey.map(hexToBytes),
-    signature: snarkJSInput.signature.map(hexToBytes),
+    publicKey: snarkJSInput.publicKey.map((b) => hexToBytes(b)),
+    signature: snarkJSInput.signature.map((b) => hexToBytes(b)),
     inputTXOs: snarkJSInput.nullifiers.map((_, i) => ({
       nullifier: hexToBytes(snarkJSInput.nullifiers[i]!),
       randomIn: hexToBytes(snarkJSInput.randomIn[i]!),
       valueIn: BigInt(snarkJSInput.valueIn[i]!),
       merkleleafPosition: Number(snarkJSInput.leavesIndices[i]),
-      pathElements: snarkJSInput.pathElements[i]!.map(hexToBytes),
+      pathElements: snarkJSInput.pathElements[i]!.map((b) => hexToBytes(b)),
     })),
     outputTXOs: snarkJSInput.commitmentsOut.map((_, i) => ({
       commitment: hexToBytes(snarkJSInput.commitmentsOut[i]!),
@@ -83,12 +61,12 @@ function snarkJSToStandardInput (snarkJSInput: SnarkJSCircuitInputFormat): Trans
  */
 function snarkJSToStandardProof (proof: SnarkjsProof): Proof {
   return {
-    a: { x: fromNumericString(proof.pi_a[0], 32), y: fromNumericString(proof.pi_a[1], 32) },
+    a: { x: bigIntToBytes(BigInt(proof.pi_a[0]), 32), y: bigIntToBytes(BigInt(proof.pi_a[1]), 32) },
     b: {
-      x: [fromNumericString(proof.pi_b[0][1], 32), fromNumericString(proof.pi_b[0][0], 32)],
-      y: [fromNumericString(proof.pi_b[1][1], 32), fromNumericString(proof.pi_b[1][0], 32)],
+      x: [bigIntToBytes(BigInt(proof.pi_b[0][1]), 32), bigIntToBytes(BigInt(proof.pi_b[0][0]), 32)],
+      y: [bigIntToBytes(BigInt(proof.pi_b[1][1]), 32), bigIntToBytes(BigInt(proof.pi_b[1][0]), 32)],
     },
-    c: { x: fromNumericString(proof.pi_c[0], 32), y: fromNumericString(proof.pi_c[1], 32) },
+    c: { x: bigIntToBytes(BigInt(proof.pi_c[0]), 32), y: bigIntToBytes(BigInt(proof.pi_c[1]), 32) },
   }
 }
 
@@ -116,12 +94,12 @@ function extractPublicInputsFromCircuitInputs (circuitInputs: TransactionCircuit
 function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
   return {
     protocol: 'groth16',
-    pi_a: [toDecimalString(proof.a.x), toDecimalString(proof.a.y)],
+    pi_a: [bytesToBigInt(proof.a.x).toString(), bytesToBigInt(proof.a.y).toString()],
     pi_b: [
-      [toDecimalString(proof.b.x[1]), toDecimalString(proof.b.x[0])],
-      [toDecimalString(proof.b.y[1]), toDecimalString(proof.b.y[0])],
+      [bytesToBigInt(proof.b.x[1]).toString(), bytesToBigInt(proof.b.x[0]).toString()],
+      [bytesToBigInt(proof.b.y[1]).toString(), bytesToBigInt(proof.b.y[0]).toString()],
     ],
-    pi_c: [toDecimalString(proof.c.x), toDecimalString(proof.c.y)]
+    pi_c: [bytesToBigInt(proof.c.x).toString(), bytesToBigInt(proof.c.y).toString()]
   }
 }
 /**
@@ -131,10 +109,10 @@ function standardToSnarkJSProof (proof: Proof): SnarkjsProof {
  */
 function standardToSnarkJSPublicInputs (publicInputs: TransactionPublicInputs) : string[] {
   return [
-    toDecimalString(publicInputs.merkleRoot),
-    toDecimalString(publicInputs.boundParams),
-    ...publicInputs.nullifiers.map(toDecimalString),
-    ...publicInputs.commitments.map(toDecimalString)
+    bytesToBigInt(publicInputs.merkleRoot).toString(),
+    bytesToBigInt(publicInputs.boundParams).toString(),
+    ...publicInputs.nullifiers.map((b) => bytesToBigInt(b).toString()),
+    ...publicInputs.commitments.map((b) => bytesToBigInt(b).toString())
   ]
 }
 
@@ -150,7 +128,7 @@ function bigintToTransactionCircuitInputs (inputs: TransactionBigintInputs): Tra
    * @param val - Bigint field element.
    * @returns 32-byte Uint8Array representation of the field element.
    */
-  const toBytes = (val: bigint) => fromNumericString(val.toString(), 32)
+  const toBytes = (val: bigint) => bigIntToBytes(val, 32)
   const numInputs = inputs.leavesIndices.length
   const treeDepth = numInputs > 0 ? inputs.pathElements.length / numInputs : 0
 

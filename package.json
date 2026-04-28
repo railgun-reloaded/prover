@@ -33,7 +33,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@railgun-reloaded/bytes": "git+https://github.com/railgun-reloaded/bytes.git#main",
+    "@railgun-reloaded/bytes": "git+https://github.com/railgun-reloaded/bytes.git#dev",
     "snarkjs": "^0.7.5"
   }
 }

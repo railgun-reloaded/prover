@@ -13,11 +13,8 @@ import {
 import type { POICircuitInputs, POIPublicInputs } from '../src/poi/types'
 import type { Proof } from '../src/transaction/types'
 
-const numberStringToUint8Array = (s: string, n: number): Uint8Array => bigIntToBytes(BigInt(s), n)
-const uint8ArrayToNumberString = (b: Uint8Array): string => bytesToBigInt(b).toString()
-
 const createMockUint8Array = (value: number): Uint8Array => {
-  return numberStringToUint8Array(value.toString(), 32)
+  return bigIntToBytes(BigInt(value), 32)
 }
 
 const createMockCircuitInputs = (): POICircuitInputs => {
@@ -468,8 +465,8 @@ test('snarkJSToStandardInput: round-trip conversion preserves values', (assert) 
   const snarkjsFormat = standardToSnarkJSInput(original)
   const backToStandard = snarkJSToStandardInput(snarkjsFormat)
 
-  assert.is(uint8ArrayToNumberString(backToStandard.anyRailgunTxidMerklerootAfterTransaction), '123')
-  assert.is(uint8ArrayToNumberString(backToStandard.boundParamsHash), '456')
+  assert.is(bytesToBigInt(backToStandard.anyRailgunTxidMerklerootAfterTransaction).toString(), '123')
+  assert.is(bytesToBigInt(backToStandard.boundParamsHash).toString(), '456')
   assert.is(backToStandard.valuesIn[0]!.toString(), '1000')
   assert.is(backToStandard.valuesIn[1]!.toString(), '2000')
   assert.is(backToStandard.utxoTreeIn, 0)
@@ -533,7 +530,7 @@ test('snarkJSToStandardInput: handles zero values', (assert) => {
 
   const result = snarkJSToStandardInput(snarkjsInput)
 
-  assert.is(uint8ArrayToNumberString(result.token), '0')
+  assert.is(bytesToBigInt(result.token).toString(), '0')
   assert.is(result.valuesIn[0]!.toString(), '0')
   assert.is(result.valuesOut[0]!.toString(), '0')
   assert.is(result.utxoTreeIn, 0)
@@ -551,8 +548,8 @@ test('snarkJSToStandardProof: converts pi_a correctly', (assert) => {
   assert.is(result.a.x.length, 32)
   assert.is(result.a.y.length, 32)
 
-  const xValue = uint8ArrayToNumberString(result.a.x)
-  const yValue = uint8ArrayToNumberString(result.a.y)
+  const xValue = bytesToBigInt(result.a.x).toString()
+  const yValue = bytesToBigInt(result.a.y).toString()
   assert.is(xValue, '123')
   assert.is(yValue, '456')
 })
@@ -567,13 +564,13 @@ test('snarkJSToStandardProof: converts pi_b with reversed order', (assert) => {
   assert.is(result.b.y.length, 2)
 
   // Verify reversal: pi_b[0][1] -> b.x[0], pi_b[0][0] -> b.x[1]
-  const x0Value = uint8ArrayToNumberString(result.b.x[0])
-  const x1Value = uint8ArrayToNumberString(result.b.x[1])
+  const x0Value = bytesToBigInt(result.b.x[0]).toString()
+  const x1Value = bytesToBigInt(result.b.x[1]).toString()
   assert.is(x0Value, '101112') // pi_b[0][1]
   assert.is(x1Value, '789')    // pi_b[0][0]
 
-  const y0Value = uint8ArrayToNumberString(result.b.y[0])
-  const y1Value = uint8ArrayToNumberString(result.b.y[1])
+  const y0Value = bytesToBigInt(result.b.y[0]).toString()
+  const y1Value = bytesToBigInt(result.b.y[1]).toString()
   assert.is(y0Value, '161718') // pi_b[1][1]
   assert.is(y1Value, '131415') // pi_b[1][0]
 })
@@ -587,8 +584,8 @@ test('snarkJSToStandardProof: converts pi_c correctly', (assert) => {
   assert.is(result.c.x.length, 32)
   assert.is(result.c.y.length, 32)
 
-  const xValue = uint8ArrayToNumberString(result.c.x)
-  const yValue = uint8ArrayToNumberString(result.c.y)
+  const xValue = bytesToBigInt(result.c.x).toString()
+  const yValue = bytesToBigInt(result.c.y).toString()
   assert.is(xValue, '192021')
   assert.is(yValue, '222324')
 })
@@ -604,7 +601,7 @@ test('snarkJSToStandardProof: handles large numbers', (assert) => {
 
   const result = snarkJSToStandardProof(snarkjsProof)
 
-  const aXValue = uint8ArrayToNumberString(result.a.x)
+  const aXValue = bytesToBigInt(result.a.x).toString()
   assert.is(aXValue, largeNumber)
 })
 
@@ -618,10 +615,10 @@ test('snarkJSToStandardProof: handles zero values', (assert) => {
 
   const result = snarkJSToStandardProof(snarkjsProof)
 
-  assert.is(uint8ArrayToNumberString(result.a.x), '0')
-  assert.is(uint8ArrayToNumberString(result.a.y), '0')
-  assert.is(uint8ArrayToNumberString(result.b.x[0]), '0')
-  assert.is(uint8ArrayToNumberString(result.c.x), '0')
+  assert.is(bytesToBigInt(result.a.x).toString(), '0')
+  assert.is(bytesToBigInt(result.a.y).toString(), '0')
+  assert.is(bytesToBigInt(result.b.x[0]).toString(), '0')
+  assert.is(bytesToBigInt(result.c.x).toString(), '0')
 })
 
 test('extractPublicInputsFromCircuitInputs: includes proof', (assert) => {
@@ -854,7 +851,7 @@ test('standardToSnarkJSPublicInputs: handles empty poiMerkleroots', (assert) => 
 
 test('standardToSnarkJSPublicInputs: handles large numbers', (assert) => {
   const largeNum = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
-  const largeArray = numberStringToUint8Array(largeNum, 32)
+  const largeArray = bigIntToBytes(BigInt(largeNum), 32)
 
   const publicInputs: POIPublicInputs = {
     proof: createMockStandardProof(),
@@ -955,19 +952,19 @@ test('integration: real-world values from test vector', (assert) => {
   const realWorldInputs = createMockCircuitInputs()
 
   // Override with real values
-  realWorldInputs.anyRailgunTxidMerklerootAfterTransaction = numberStringToUint8Array(
-    '3992948854570403243612454494108563343803762571679238500930694570641057471215',
+  realWorldInputs.anyRailgunTxidMerklerootAfterTransaction = bigIntToBytes(
+    BigInt('3992948854570403243612454494108563343803762571679238500930694570641057471215'),
     32
   )
-  realWorldInputs.railgunTxidIfHasUnshield = numberStringToUint8Array('0', 32)
-  realWorldInputs.token = numberStringToUint8Array(
-    BigInt('0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6').toString(),
+  realWorldInputs.railgunTxidIfHasUnshield = bigIntToBytes(0n, 32)
+  realWorldInputs.token = bigIntToBytes(
+    BigInt('0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6'),
     32
   )
   realWorldInputs.poiMerkleroots = [
-    numberStringToUint8Array('11818424364930592963832088714478202734918394395275665258335823549970972331583', 32),
-    numberStringToUint8Array('2051258411002736885948763699317990061539314419500486054347250703186609807356', 32),
-    numberStringToUint8Array('2051258411002736885948763699317990061539314419500486054347250703186609807356', 32)
+    bigIntToBytes(BigInt('11818424364930592963832088714478202734918394395275665258335823549970972331583'), 32),
+    bigIntToBytes(BigInt('2051258411002736885948763699317990061539314419500486054347250703186609807356'), 32),
+    bigIntToBytes(BigInt('2051258411002736885948763699317990061539314419500486054347250703186609807356'), 32)
   ]
 
   // Convert to snarkJS format
@@ -1008,10 +1005,10 @@ test('integration: public inputs match circuit output format', (assert) => {
   ]
 
   // Create POIPublicInputs from these signals
-  const blindedCommitmentsOut = circuitPublicSignals.slice(0, 13).map(s => numberStringToUint8Array(s, 32))
-  const anyRailgunTxidMerklerootAfterTransaction = numberStringToUint8Array(circuitPublicSignals[13] ?? '0', 32)
-  const railgunTxidIfHasUnshield = numberStringToUint8Array(circuitPublicSignals[14] ?? '0', 32)
-  const poiMerkleroots = circuitPublicSignals.slice(15, 28).map(s => numberStringToUint8Array(s, 32))
+  const blindedCommitmentsOut = circuitPublicSignals.slice(0, 13).map(s => bigIntToBytes(BigInt(s), 32))
+  const anyRailgunTxidMerklerootAfterTransaction = bigIntToBytes(BigInt(circuitPublicSignals[13] ?? '0'), 32)
+  const railgunTxidIfHasUnshield = bigIntToBytes(BigInt(circuitPublicSignals[14] ?? '0'), 32)
+  const poiMerkleroots = circuitPublicSignals.slice(15, 28).map(s => bigIntToBytes(BigInt(s), 32))
 
   const publicInputs: POIPublicInputs = {
     proof: createMockStandardProof(),
@@ -1224,10 +1221,10 @@ test('regression: pi_b reversal is correct', (assert) => {
   const standard = snarkJSToStandardProof(snarkjsProof)
 
   // After conversion: b.x[0] should be pi_b[0][1]=4, b.x[1] should be pi_b[0][0]=3
-  assert.is(uint8ArrayToNumberString(standard.b.x[0]), '4')
-  assert.is(uint8ArrayToNumberString(standard.b.x[1]), '3')
-  assert.is(uint8ArrayToNumberString(standard.b.y[0]), '6')
-  assert.is(uint8ArrayToNumberString(standard.b.y[1]), '5')
+  assert.is(bytesToBigInt(standard.b.x[0]).toString(), '4')
+  assert.is(bytesToBigInt(standard.b.x[1]).toString(), '3')
+  assert.is(bytesToBigInt(standard.b.y[0]).toString(), '6')
+  assert.is(bytesToBigInt(standard.b.y[1]).toString(), '5')
 
   // Convert back
   const backToSnarkjs = standardToSnarkJSProof(standard)
