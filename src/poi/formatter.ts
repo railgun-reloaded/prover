@@ -131,34 +131,27 @@ function standardToSnarkJSPublicInputs (publicInputs: POIPublicInputs) : string[
  * @returns Standard POICircuitInputs with Uint8Array field elements.
  */
 function bigintToPOICircuitInputs (inputs: POIBigintInputs): POICircuitInputs {
-  /**
-   * Convert a bigint field element to a 32-byte Uint8Array.
-   * @param val - Bigint field element.
-   * @returns 32-byte Uint8Array representation of the field element.
-   */
-  const toBytes = (val: bigint) => bigIntToBytes(val, 32)
-
   return {
-    anyRailgunTxidMerklerootAfterTransaction: toBytes(inputs.anyRailgunTxidMerklerootAfterTransaction),
-    poiMerkleroots: inputs.poiMerkleroots.map(toBytes),
-    boundParamsHash: toBytes(inputs.boundParamsHash),
-    nullifiers: inputs.nullifiers.map(toBytes),
-    commitmentsOut: inputs.commitmentsOut.map(toBytes),
-    spendingPublicKey: inputs.spendingPublicKey.map(toBytes),
-    nullifyingKey: toBytes(inputs.nullifyingKey),
-    token: toBytes(inputs.token),
-    randomsIn: inputs.randomsIn.map(toBytes),
+    anyRailgunTxidMerklerootAfterTransaction: bigIntToBytes(inputs.anyRailgunTxidMerklerootAfterTransaction, 32),
+    poiMerkleroots: inputs.poiMerkleroots.map((v) => bigIntToBytes(v, 32)),
+    boundParamsHash: bigIntToBytes(inputs.boundParamsHash, 32),
+    nullifiers: inputs.nullifiers.map((v) => bigIntToBytes(v, 32)),
+    commitmentsOut: inputs.commitmentsOut.map((v) => bigIntToBytes(v, 32)),
+    spendingPublicKey: inputs.spendingPublicKey.map((v) => bigIntToBytes(v, 32)),
+    nullifyingKey: bigIntToBytes(inputs.nullifyingKey, 32),
+    token: bigIntToBytes(inputs.token, 32),
+    randomsIn: inputs.randomsIn.map((v) => bigIntToBytes(v, 32)),
     valuesIn: inputs.valuesIn,
     utxoPositionsIn: inputs.utxoPositionsIn.map(Number),
     utxoTreeIn: Number(inputs.utxoTreeIn),
-    npksOut: inputs.npksOut.map(toBytes),
+    npksOut: inputs.npksOut.map((v) => bigIntToBytes(v, 32)),
     valuesOut: inputs.valuesOut,
-    utxoBatchGlobalStartPositionOut: toBytes(inputs.utxoBatchGlobalStartPositionOut),
-    railgunTxidIfHasUnshield: toBytes(inputs.railgunTxidIfHasUnshield),
+    utxoBatchGlobalStartPositionOut: bigIntToBytes(inputs.utxoBatchGlobalStartPositionOut, 32),
+    railgunTxidIfHasUnshield: bigIntToBytes(inputs.railgunTxidIfHasUnshield, 32),
     railgunTxidMerkleProofIndices: Number(inputs.railgunTxidMerkleProofIndices),
-    railgunTxidMerkleProofPathElements: inputs.railgunTxidMerkleProofPathElements.map(toBytes),
+    railgunTxidMerkleProofPathElements: inputs.railgunTxidMerkleProofPathElements.map((v) => bigIntToBytes(v, 32)),
     poiInMerkleProofIndices: inputs.poiInMerkleProofIndices.map(Number),
-    poiInMerkleProofPathElements: inputs.poiInMerkleProofPathElements.map(path => path.map(toBytes)),
+    poiInMerkleProofPathElements: inputs.poiInMerkleProofPathElements.map(path => path.map((v) => bigIntToBytes(v, 32))),
   }
 }
 

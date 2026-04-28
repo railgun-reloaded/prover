@@ -123,32 +123,26 @@ function standardToSnarkJSPublicInputs (publicInputs: TransactionPublicInputs) :
  * @returns Standard TransactionCircuitInputs with Uint8Array field elements.
  */
 function bigintToTransactionCircuitInputs (inputs: TransactionBigintInputs): TransactionCircuitInputs {
-  /**
-   * Convert a bigint field element to a 32-byte Uint8Array.
-   * @param val - Bigint field element.
-   * @returns 32-byte Uint8Array representation of the field element.
-   */
-  const toBytes = (val: bigint) => bigIntToBytes(val, 32)
   const numInputs = inputs.leavesIndices.length
   const treeDepth = numInputs > 0 ? inputs.pathElements.length / numInputs : 0
 
   return {
-    merkleRoot: toBytes(inputs.merkleRoot),
-    boundParamsHash: toBytes(inputs.boundParamsHash),
-    token: toBytes(inputs.token),
-    nullifyingKey: toBytes(inputs.nullifyingKey),
-    publicKey: inputs.publicKey.map(toBytes),
-    signature: inputs.signature.map(toBytes),
+    merkleRoot: bigIntToBytes(inputs.merkleRoot, 32),
+    boundParamsHash: bigIntToBytes(inputs.boundParamsHash, 32),
+    token: bigIntToBytes(inputs.token, 32),
+    nullifyingKey: bigIntToBytes(inputs.nullifyingKey, 32),
+    publicKey: inputs.publicKey.map((v) => bigIntToBytes(v, 32)),
+    signature: inputs.signature.map((v) => bigIntToBytes(v, 32)),
     inputTXOs: inputs.leavesIndices.map((leafIndex, i) => ({
-      nullifier: toBytes(inputs.nullifiers[i]!),
-      randomIn: toBytes(inputs.randomIn[i]!),
+      nullifier: bigIntToBytes(inputs.nullifiers[i]!, 32),
+      randomIn: bigIntToBytes(inputs.randomIn[i]!, 32),
       valueIn: inputs.valueIn[i]!,
       merkleleafPosition: Number(leafIndex),
-      pathElements: inputs.pathElements.slice(i * treeDepth, (i + 1) * treeDepth).map(toBytes),
+      pathElements: inputs.pathElements.slice(i * treeDepth, (i + 1) * treeDepth).map((v) => bigIntToBytes(v, 32)),
     })),
     outputTXOs: inputs.commitmentsOut.map((commitment, i) => ({
-      commitment: toBytes(commitment),
-      npk: toBytes(inputs.npkOut[i]!),
+      commitment: bigIntToBytes(commitment, 32),
+      npk: bigIntToBytes(inputs.npkOut[i]!, 32),
       value: inputs.valueOut[i]!,
     })),
   }
