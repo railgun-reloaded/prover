@@ -1,5 +1,7 @@
+import assert from 'node:assert/strict'
+import { test } from 'node:test'
+
 import { bigIntToBytes, bytesToBigInt } from '@railgun-reloaded/bytes'
-import { test } from 'brittle'
 import type { SnarkjsProof } from 'snarkjs'
 
 import {
@@ -119,95 +121,95 @@ const createMockStandardProof = (): Proof => {
   }
 }
 
-test('standardToSnarkJSInput: converts all Uint8Array fields to hex strings', (assert) => {
+test('standardToSnarkJSInput: converts all Uint8Array fields to hex strings', () => {
   const input = createMockCircuitInputs()
   const result = standardToSnarkJSInput(input)
 
-  assert.is(typeof result.anyRailgunTxidMerklerootAfterTransaction, 'string')
+  assert.equal(typeof result.anyRailgunTxidMerklerootAfterTransaction, 'string')
   assert.ok(result.anyRailgunTxidMerklerootAfterTransaction.startsWith('0x'))
-  assert.is(typeof result.boundParamsHash, 'string')
-  assert.is(typeof result.nullifyingKey, 'string')
-  assert.is(typeof result.token, 'string')
+  assert.equal(typeof result.boundParamsHash, 'string')
+  assert.equal(typeof result.nullifyingKey, 'string')
+  assert.equal(typeof result.token, 'string')
 })
 
-test('standardToSnarkJSInput: converts arrays of Uint8Array to arrays of hex strings', (assert) => {
+test('standardToSnarkJSInput: converts arrays of Uint8Array to arrays of hex strings', () => {
   const input = createMockCircuitInputs()
   const result = standardToSnarkJSInput(input)
 
-  assert.is(result.poiMerkleroots.length, 3)
+  assert.equal(result.poiMerkleroots.length, 3)
   assert.ok(result.poiMerkleroots.every(m => typeof m === 'string' && m.startsWith('0x')))
 
-  assert.is(result.nullifiers.length, 2)
+  assert.equal(result.nullifiers.length, 2)
   assert.ok(result.nullifiers.every(n => typeof n === 'string' && n.startsWith('0x')))
 
-  assert.is(result.commitmentsOut.length, 2)
+  assert.equal(result.commitmentsOut.length, 2)
   assert.ok(result.commitmentsOut.every(c => typeof c === 'string' && c.startsWith('0x')))
 })
 
-test('standardToSnarkJSInput: converts BigInt values to strings', (assert) => {
+test('standardToSnarkJSInput: converts BigInt values to strings', () => {
   const input = createMockCircuitInputs()
   const result = standardToSnarkJSInput(input)
 
-  assert.is(result.valuesIn.length, 2)
-  assert.is(result.valuesIn[0], '1000')
-  assert.is(result.valuesIn[1], '2000')
+  assert.equal(result.valuesIn.length, 2)
+  assert.equal(result.valuesIn[0], '1000')
+  assert.equal(result.valuesIn[1], '2000')
 
-  assert.is(result.valuesOut.length, 2)
-  assert.is(result.valuesOut[0], '500')
-  assert.is(result.valuesOut[1], '1500')
+  assert.equal(result.valuesOut.length, 2)
+  assert.equal(result.valuesOut[0], '500')
+  assert.equal(result.valuesOut[1], '1500')
 })
 
-test('standardToSnarkJSInput: preserves number fields', (assert) => {
+test('standardToSnarkJSInput: preserves number fields', () => {
   const input = createMockCircuitInputs()
   const result = standardToSnarkJSInput(input)
 
-  assert.is(result.utxoPositionsIn[0], 1)
-  assert.is(result.utxoPositionsIn[1], 2)
-  assert.is(result.utxoTreeIn, 0)
-  assert.is(result.railgunTxidMerkleProofIndices, 5)
+  assert.equal(result.utxoPositionsIn[0], 1)
+  assert.equal(result.utxoPositionsIn[1], 2)
+  assert.equal(result.utxoTreeIn, 0)
+  assert.equal(result.railgunTxidMerkleProofIndices, 5)
 })
 
-test('standardToSnarkJSInput: converts nested arrays correctly', (assert) => {
+test('standardToSnarkJSInput: converts nested arrays correctly', () => {
   const input = createMockCircuitInputs()
   const result = standardToSnarkJSInput(input)
 
-  assert.is(result.poiInMerkleProofPathElements.length, 2)
+  assert.equal(result.poiInMerkleProofPathElements.length, 2)
   assert.ok(result.poiInMerkleProofPathElements[0], 'first element should exist')
-  assert.is(result.poiInMerkleProofPathElements[0]!.length, 2)
+  assert.equal(result.poiInMerkleProofPathElements[0]!.length, 2)
   assert.ok(result.poiInMerkleProofPathElements[0]!.every(e => typeof e === 'string' && e.startsWith('0x')))
 })
 
-test('standardToSnarkJSInput: converts poiInMerkleProofIndices to strings', (assert) => {
+test('standardToSnarkJSInput: converts poiInMerkleProofIndices to strings', () => {
   const input = createMockCircuitInputs()
   const result = standardToSnarkJSInput(input)
 
-  assert.is(result.poiInMerkleProofIndices.length, 3)
-  assert.is(result.poiInMerkleProofIndices[0], '0')
-  assert.is(result.poiInMerkleProofIndices[1], '1')
-  assert.is(result.poiInMerkleProofIndices[2], '2')
+  assert.equal(result.poiInMerkleProofIndices.length, 3)
+  assert.equal(result.poiInMerkleProofIndices[0], '0')
+  assert.equal(result.poiInMerkleProofIndices[1], '1')
+  assert.equal(result.poiInMerkleProofIndices[2], '2')
 })
 
-test('standardToSnarkJSInput: handles empty arrays', (assert) => {
+test('standardToSnarkJSInput: handles empty arrays', () => {
   const input = createMockCircuitInputs()
   input.nullifiers = []
   input.commitmentsOut = []
 
   const result = standardToSnarkJSInput(input)
 
-  assert.is(result.nullifiers.length, 0)
-  assert.is(result.commitmentsOut.length, 0)
+  assert.equal(result.nullifiers.length, 0)
+  assert.equal(result.commitmentsOut.length, 0)
 })
 
-test('standardToSnarkJSInput: round-trip hex conversion preserves values', (assert) => {
+test('standardToSnarkJSInput: round-trip hex conversion preserves values', () => {
   const input = createMockCircuitInputs()
   const result = standardToSnarkJSInput(input)
 
   // Convert back and verify
   const backToNumber = BigInt(result.anyRailgunTxidMerklerootAfterTransaction).toString()
-  assert.is(backToNumber, '123')
+  assert.equal(backToNumber, '123')
 })
 
-test('snarkJSToStandardInput: converts hex strings to Uint8Array', (assert) => {
+test('snarkJSToStandardInput: converts hex strings to Uint8Array', () => {
   const snarkjsInput = {
     anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
     poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
@@ -234,13 +236,13 @@ test('snarkJSToStandardInput: converts hex strings to Uint8Array', (assert) => {
   const result = snarkJSToStandardInput(snarkjsInput)
 
   assert.ok(result.anyRailgunTxidMerklerootAfterTransaction instanceof Uint8Array)
-  assert.is(result.anyRailgunTxidMerklerootAfterTransaction.length, 32)
+  assert.equal(result.anyRailgunTxidMerklerootAfterTransaction.length, 32)
   assert.ok(result.boundParamsHash instanceof Uint8Array)
   assert.ok(result.token instanceof Uint8Array)
   assert.ok(result.nullifyingKey instanceof Uint8Array)
 })
 
-test('snarkJSToStandardInput: converts arrays of hex strings to arrays of Uint8Array', (assert) => {
+test('snarkJSToStandardInput: converts arrays of hex strings to arrays of Uint8Array', () => {
   const snarkjsInput = {
     anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
     poiMerkleroots: [
@@ -290,20 +292,20 @@ test('snarkJSToStandardInput: converts arrays of hex strings to arrays of Uint8A
 
   const result = snarkJSToStandardInput(snarkjsInput)
 
-  assert.is(result.poiMerkleroots.length, 2)
+  assert.equal(result.poiMerkleroots.length, 2)
   assert.ok(result.poiMerkleroots.every(m => m instanceof Uint8Array && m.length === 32))
 
-  assert.is(result.nullifiers.length, 2)
+  assert.equal(result.nullifiers.length, 2)
   assert.ok(result.nullifiers.every(n => n instanceof Uint8Array && n.length === 32))
 
-  assert.is(result.commitmentsOut.length, 2)
+  assert.equal(result.commitmentsOut.length, 2)
   assert.ok(result.commitmentsOut.every(c => c instanceof Uint8Array && c.length === 32))
 
-  assert.is(result.spendingPublicKey.length, 2)
+  assert.equal(result.spendingPublicKey.length, 2)
   assert.ok(result.spendingPublicKey.every(pk => pk instanceof Uint8Array && pk.length === 32))
 })
 
-test('snarkJSToStandardInput: converts string values to BigInt', (assert) => {
+test('snarkJSToStandardInput: converts string values to BigInt', () => {
   const snarkjsInput = {
     anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
     poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
@@ -329,18 +331,18 @@ test('snarkJSToStandardInput: converts string values to BigInt', (assert) => {
 
   const result = snarkJSToStandardInput(snarkjsInput)
 
-  assert.is(result.valuesIn.length, 2)
-  assert.is(typeof result.valuesIn[0], 'bigint')
-  assert.is(result.valuesIn[0]!.toString(), '1000')
-  assert.is(result.valuesIn[1]!.toString(), '2000')
+  assert.equal(result.valuesIn.length, 2)
+  assert.equal(typeof result.valuesIn[0], 'bigint')
+  assert.equal(result.valuesIn[0]!.toString(), '1000')
+  assert.equal(result.valuesIn[1]!.toString(), '2000')
 
-  assert.is(result.valuesOut.length, 2)
-  assert.is(typeof result.valuesOut[0], 'bigint')
-  assert.is(result.valuesOut[0]!.toString(), '500')
-  assert.is(result.valuesOut[1]!.toString(), '1500')
+  assert.equal(result.valuesOut.length, 2)
+  assert.equal(typeof result.valuesOut[0], 'bigint')
+  assert.equal(result.valuesOut[0]!.toString(), '500')
+  assert.equal(result.valuesOut[1]!.toString(), '1500')
 })
 
-test('snarkJSToStandardInput: preserves number fields', (assert) => {
+test('snarkJSToStandardInput: preserves number fields', () => {
   const snarkjsInput = {
     anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
     poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
@@ -366,17 +368,17 @@ test('snarkJSToStandardInput: preserves number fields', (assert) => {
 
   const result = snarkJSToStandardInput(snarkjsInput)
 
-  assert.is(typeof result.utxoPositionsIn[0], 'number')
-  assert.is(result.utxoPositionsIn[0], 1)
-  assert.is(result.utxoPositionsIn[1], 2)
-  assert.is(result.utxoPositionsIn[2], 3)
-  assert.is(typeof result.utxoTreeIn, 'number')
-  assert.is(result.utxoTreeIn, 5)
-  assert.is(typeof result.railgunTxidMerkleProofIndices, 'number')
-  assert.is(result.railgunTxidMerkleProofIndices, 10)
+  assert.equal(typeof result.utxoPositionsIn[0], 'number')
+  assert.equal(result.utxoPositionsIn[0], 1)
+  assert.equal(result.utxoPositionsIn[1], 2)
+  assert.equal(result.utxoPositionsIn[2], 3)
+  assert.equal(typeof result.utxoTreeIn, 'number')
+  assert.equal(result.utxoTreeIn, 5)
+  assert.equal(typeof result.railgunTxidMerkleProofIndices, 'number')
+  assert.equal(result.railgunTxidMerkleProofIndices, 10)
 })
 
-test('snarkJSToStandardInput: converts poiInMerkleProofIndices from strings to numbers', (assert) => {
+test('snarkJSToStandardInput: converts poiInMerkleProofIndices from strings to numbers', () => {
   const snarkjsInput = {
     anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
     poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
@@ -402,14 +404,14 @@ test('snarkJSToStandardInput: converts poiInMerkleProofIndices from strings to n
 
   const result = snarkJSToStandardInput(snarkjsInput)
 
-  assert.is(result.poiInMerkleProofIndices.length, 3)
-  assert.is(typeof result.poiInMerkleProofIndices[0], 'number')
-  assert.is(result.poiInMerkleProofIndices[0], 0)
-  assert.is(result.poiInMerkleProofIndices[1], 1)
-  assert.is(result.poiInMerkleProofIndices[2], 2)
+  assert.equal(result.poiInMerkleProofIndices.length, 3)
+  assert.equal(typeof result.poiInMerkleProofIndices[0], 'number')
+  assert.equal(result.poiInMerkleProofIndices[0], 0)
+  assert.equal(result.poiInMerkleProofIndices[1], 1)
+  assert.equal(result.poiInMerkleProofIndices[2], 2)
 })
 
-test('snarkJSToStandardInput: converts nested arrays correctly', (assert) => {
+test('snarkJSToStandardInput: converts nested arrays correctly', () => {
   const snarkjsInput = {
     anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
     poiMerkleroots: ['0x0000000000000000000000000000000000000000000000000000000000000064'],
@@ -441,16 +443,16 @@ test('snarkJSToStandardInput: converts nested arrays correctly', (assert) => {
 
   const result = snarkJSToStandardInput(snarkjsInput)
 
-  assert.is(result.poiInMerkleProofPathElements.length, 2)
+  assert.equal(result.poiInMerkleProofPathElements.length, 2)
   assert.ok(result.poiInMerkleProofPathElements[0])
-  assert.is(result.poiInMerkleProofPathElements[0]!.length, 2)
+  assert.equal(result.poiInMerkleProofPathElements[0]!.length, 2)
   assert.ok(result.poiInMerkleProofPathElements[0]!.every(e => e instanceof Uint8Array && e.length === 32))
   assert.ok(result.poiInMerkleProofPathElements[1])
-  assert.is(result.poiInMerkleProofPathElements[1]!.length, 2)
+  assert.equal(result.poiInMerkleProofPathElements[1]!.length, 2)
   assert.ok(result.poiInMerkleProofPathElements[1]!.every(e => e instanceof Uint8Array && e.length === 32))
 })
 
-test('snarkJSToStandardInput: handles empty arrays', (assert) => {
+test('snarkJSToStandardInput: handles empty arrays', () => {
   const snarkjsInput = {
     anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
     poiMerkleroots: [],
@@ -476,27 +478,27 @@ test('snarkJSToStandardInput: handles empty arrays', (assert) => {
 
   const result = snarkJSToStandardInput(snarkjsInput)
 
-  assert.is(result.nullifiers.length, 0)
-  assert.is(result.commitmentsOut.length, 0)
-  assert.is(result.valuesIn.length, 0)
-  assert.is(result.valuesOut.length, 0)
-  assert.is(result.poiInMerkleProofPathElements.length, 0)
+  assert.equal(result.nullifiers.length, 0)
+  assert.equal(result.commitmentsOut.length, 0)
+  assert.equal(result.valuesIn.length, 0)
+  assert.equal(result.valuesOut.length, 0)
+  assert.equal(result.poiInMerkleProofPathElements.length, 0)
 })
 
-test('snarkJSToStandardInput: round-trip conversion preserves values', (assert) => {
+test('snarkJSToStandardInput: round-trip conversion preserves values', () => {
   const original = createMockCircuitInputs()
   const snarkjsFormat = standardToSnarkJSInput(original)
   const backToStandard = snarkJSToStandardInput(snarkjsFormat)
 
-  assert.is(bytesToBigInt(backToStandard.anyRailgunTxidMerklerootAfterTransaction).toString(), '123')
-  assert.is(bytesToBigInt(backToStandard.boundParamsHash).toString(), '456')
-  assert.is(backToStandard.valuesIn[0]!.toString(), '1000')
-  assert.is(backToStandard.valuesIn[1]!.toString(), '2000')
-  assert.is(backToStandard.utxoTreeIn, 0)
-  assert.is(backToStandard.railgunTxidMerkleProofIndices, 5)
+  assert.equal(bytesToBigInt(backToStandard.anyRailgunTxidMerklerootAfterTransaction).toString(), '123')
+  assert.equal(bytesToBigInt(backToStandard.boundParamsHash).toString(), '456')
+  assert.equal(backToStandard.valuesIn[0]!.toString(), '1000')
+  assert.equal(backToStandard.valuesIn[1]!.toString(), '2000')
+  assert.equal(backToStandard.utxoTreeIn, 0)
+  assert.equal(backToStandard.railgunTxidMerkleProofIndices, 5)
 })
 
-test('snarkJSToStandardInput: handles large BigInt values', (assert) => {
+test('snarkJSToStandardInput: handles large BigInt values', () => {
   const largeValue = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
   const snarkjsInput = {
     anyRailgunTxidMerklerootAfterTransaction: '0x000000000000000000000000000000000000000000000000000000000000007b',
@@ -523,11 +525,11 @@ test('snarkJSToStandardInput: handles large BigInt values', (assert) => {
 
   const result = snarkJSToStandardInput(snarkjsInput)
 
-  assert.is(result.valuesIn[0]!.toString(), largeValue)
-  assert.is(result.valuesOut[0]!.toString(), largeValue)
+  assert.equal(result.valuesIn[0]!.toString(), largeValue)
+  assert.equal(result.valuesOut[0]!.toString(), largeValue)
 })
 
-test('snarkJSToStandardInput: handles zero values', (assert) => {
+test('snarkJSToStandardInput: handles zero values', () => {
   const snarkjsInput = {
     anyRailgunTxidMerklerootAfterTransaction: '0x' + '00'.repeat(32),
     poiMerkleroots: ['0x' + '00'.repeat(32)],
@@ -553,67 +555,67 @@ test('snarkJSToStandardInput: handles zero values', (assert) => {
 
   const result = snarkJSToStandardInput(snarkjsInput)
 
-  assert.is(bytesToBigInt(result.token).toString(), '0')
-  assert.is(result.valuesIn[0]!.toString(), '0')
-  assert.is(result.valuesOut[0]!.toString(), '0')
-  assert.is(result.utxoTreeIn, 0)
-  assert.is(result.railgunTxidMerkleProofIndices, 0)
+  assert.equal(bytesToBigInt(result.token).toString(), '0')
+  assert.equal(result.valuesIn[0]!.toString(), '0')
+  assert.equal(result.valuesOut[0]!.toString(), '0')
+  assert.equal(result.utxoTreeIn, 0)
+  assert.equal(result.railgunTxidMerkleProofIndices, 0)
 })
 
 // snarkJSToStandardProof Tests
 
-test('snarkJSToStandardProof: converts pi_a correctly', (assert) => {
+test('snarkJSToStandardProof: converts pi_a correctly', () => {
   const snarkjsProof = createMockSnarkjsProof()
   const result = snarkJSToStandardProof(snarkjsProof)
 
   assert.ok(result.a.x instanceof Uint8Array)
   assert.ok(result.a.y instanceof Uint8Array)
-  assert.is(result.a.x.length, 32)
-  assert.is(result.a.y.length, 32)
+  assert.equal(result.a.x.length, 32)
+  assert.equal(result.a.y.length, 32)
 
   const xValue = bytesToBigInt(result.a.x).toString()
   const yValue = bytesToBigInt(result.a.y).toString()
-  assert.is(xValue, '123')
-  assert.is(yValue, '456')
+  assert.equal(xValue, '123')
+  assert.equal(yValue, '456')
 })
 
-test('snarkJSToStandardProof: converts pi_b with reversed order', (assert) => {
+test('snarkJSToStandardProof: converts pi_b with reversed order', () => {
   const snarkjsProof = createMockSnarkjsProof()
   const result = snarkJSToStandardProof(snarkjsProof)
 
   assert.ok(Array.isArray(result.b.x))
   assert.ok(Array.isArray(result.b.y))
-  assert.is(result.b.x.length, 2)
-  assert.is(result.b.y.length, 2)
+  assert.equal(result.b.x.length, 2)
+  assert.equal(result.b.y.length, 2)
 
   // Verify reversal: pi_b[0][1] -> b.x[0], pi_b[0][0] -> b.x[1]
   const x0Value = bytesToBigInt(result.b.x[0]).toString()
   const x1Value = bytesToBigInt(result.b.x[1]).toString()
-  assert.is(x0Value, '101112') // pi_b[0][1]
-  assert.is(x1Value, '789')    // pi_b[0][0]
+  assert.equal(x0Value, '101112') // pi_b[0][1]
+  assert.equal(x1Value, '789')    // pi_b[0][0]
 
   const y0Value = bytesToBigInt(result.b.y[0]).toString()
   const y1Value = bytesToBigInt(result.b.y[1]).toString()
-  assert.is(y0Value, '161718') // pi_b[1][1]
-  assert.is(y1Value, '131415') // pi_b[1][0]
+  assert.equal(y0Value, '161718') // pi_b[1][1]
+  assert.equal(y1Value, '131415') // pi_b[1][0]
 })
 
-test('snarkJSToStandardProof: converts pi_c correctly', (assert) => {
+test('snarkJSToStandardProof: converts pi_c correctly', () => {
   const snarkjsProof = createMockSnarkjsProof()
   const result = snarkJSToStandardProof(snarkjsProof)
 
   assert.ok(result.c.x instanceof Uint8Array)
   assert.ok(result.c.y instanceof Uint8Array)
-  assert.is(result.c.x.length, 32)
-  assert.is(result.c.y.length, 32)
+  assert.equal(result.c.x.length, 32)
+  assert.equal(result.c.y.length, 32)
 
   const xValue = bytesToBigInt(result.c.x).toString()
   const yValue = bytesToBigInt(result.c.y).toString()
-  assert.is(xValue, '192021')
-  assert.is(yValue, '222324')
+  assert.equal(xValue, '192021')
+  assert.equal(yValue, '222324')
 })
 
-test('snarkJSToStandardProof: handles large numbers', (assert) => {
+test('snarkJSToStandardProof: handles large numbers', () => {
   const largeNumber = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
   const snarkjsProof: SnarkjsProof = {
     protocol: 'groth16',
@@ -625,10 +627,10 @@ test('snarkJSToStandardProof: handles large numbers', (assert) => {
   const result = snarkJSToStandardProof(snarkjsProof)
 
   const aXValue = bytesToBigInt(result.a.x).toString()
-  assert.is(aXValue, largeNumber)
+  assert.equal(aXValue, largeNumber)
 })
 
-test('snarkJSToStandardProof: handles zero values', (assert) => {
+test('snarkJSToStandardProof: handles zero values', () => {
   const snarkjsProof: SnarkjsProof = {
     protocol: 'groth16',
     pi_a: ['0', '0'],
@@ -638,13 +640,13 @@ test('snarkJSToStandardProof: handles zero values', (assert) => {
 
   const result = snarkJSToStandardProof(snarkjsProof)
 
-  assert.is(bytesToBigInt(result.a.x).toString(), '0')
-  assert.is(bytesToBigInt(result.a.y).toString(), '0')
-  assert.is(bytesToBigInt(result.b.x[0]).toString(), '0')
-  assert.is(bytesToBigInt(result.c.x).toString(), '0')
+  assert.equal(bytesToBigInt(result.a.x).toString(), '0')
+  assert.equal(bytesToBigInt(result.a.y).toString(), '0')
+  assert.equal(bytesToBigInt(result.b.x[0]).toString(), '0')
+  assert.equal(bytesToBigInt(result.c.x).toString(), '0')
 })
 
-test('extractPublicInputsFromCircuitInputs: includes proof', (assert) => {
+test('extractPublicInputsFromCircuitInputs: includes proof', () => {
   const circuitInputs = createMockCircuitInputs()
   const proof = createMockStandardProof()
   const blindedCommitments = [createMockUint8Array(1), createMockUint8Array(2)]
@@ -652,62 +654,62 @@ test('extractPublicInputsFromCircuitInputs: includes proof', (assert) => {
   const result = extractPublicInputsFromCircuitInputs(circuitInputs, proof, blindedCommitments)
 
   assert.ok(result.proof)
-  assert.is(result.proof, proof)
+  assert.equal(result.proof, proof)
 })
 
-test('extractPublicInputsFromCircuitInputs: includes blindedCommitmentsOut', (assert) => {
+test('extractPublicInputsFromCircuitInputs: includes blindedCommitmentsOut', () => {
   const circuitInputs = createMockCircuitInputs()
   const proof = createMockStandardProof()
   const blindedCommitments = [createMockUint8Array(1), createMockUint8Array(2), createMockUint8Array(3)]
 
   const result = extractPublicInputsFromCircuitInputs(circuitInputs, proof, blindedCommitments)
 
-  assert.is(result.blindedCommitmentsOut.length, 3)
-  assert.is(result.blindedCommitmentsOut, blindedCommitments)
+  assert.equal(result.blindedCommitmentsOut.length, 3)
+  assert.equal(result.blindedCommitmentsOut, blindedCommitments)
 })
 
-test('extractPublicInputsFromCircuitInputs: includes poiMerkleroots', (assert) => {
+test('extractPublicInputsFromCircuitInputs: includes poiMerkleroots', () => {
   const circuitInputs = createMockCircuitInputs()
   const proof = createMockStandardProof()
   const blindedCommitments = [createMockUint8Array(1)]
 
   const result = extractPublicInputsFromCircuitInputs(circuitInputs, proof, blindedCommitments)
 
-  assert.is(result.poiMerkleroots.length, 3)
-  assert.is(result.poiMerkleroots, circuitInputs.poiMerkleroots)
+  assert.equal(result.poiMerkleroots.length, 3)
+  assert.equal(result.poiMerkleroots, circuitInputs.poiMerkleroots)
 })
 
-test('extractPublicInputsFromCircuitInputs: includes anyRailgunTxidMerklerootAfterTransaction', (assert) => {
+test('extractPublicInputsFromCircuitInputs: includes anyRailgunTxidMerklerootAfterTransaction', () => {
   const circuitInputs = createMockCircuitInputs()
   const proof = createMockStandardProof()
   const blindedCommitments = [createMockUint8Array(1)]
 
   const result = extractPublicInputsFromCircuitInputs(circuitInputs, proof, blindedCommitments)
 
-  assert.is(result.anyRailgunTxidMerklerootAfterTransaction, circuitInputs.anyRailgunTxidMerklerootAfterTransaction)
+  assert.equal(result.anyRailgunTxidMerklerootAfterTransaction, circuitInputs.anyRailgunTxidMerklerootAfterTransaction)
 })
 
-test('extractPublicInputsFromCircuitInputs: includes railgunTxidIfHasUnshield', (assert) => {
+test('extractPublicInputsFromCircuitInputs: includes railgunTxidIfHasUnshield', () => {
   const circuitInputs = createMockCircuitInputs()
   const proof = createMockStandardProof()
   const blindedCommitments = [createMockUint8Array(1)]
 
   const result = extractPublicInputsFromCircuitInputs(circuitInputs, proof, blindedCommitments)
 
-  assert.is(result.railgunTxidIfHasUnshield, circuitInputs.railgunTxidIfHasUnshield)
+  assert.equal(result.railgunTxidIfHasUnshield, circuitInputs.railgunTxidIfHasUnshield)
 })
 
-test('extractPublicInputsFromCircuitInputs: handles empty blindedCommitmentsOut', (assert) => {
+test('extractPublicInputsFromCircuitInputs: handles empty blindedCommitmentsOut', () => {
   const circuitInputs = createMockCircuitInputs()
   const proof = createMockStandardProof()
   const blindedCommitments: Uint8Array[] = []
 
   const result = extractPublicInputsFromCircuitInputs(circuitInputs, proof, blindedCommitments)
 
-  assert.is(result.blindedCommitmentsOut.length, 0)
+  assert.equal(result.blindedCommitmentsOut.length, 0)
 })
 
-test('extractPublicInputsFromCircuitInputs: returns all required fields', (assert) => {
+test('extractPublicInputsFromCircuitInputs: returns all required fields', () => {
   const circuitInputs = createMockCircuitInputs()
   const proof = createMockStandardProof()
   const blindedCommitments = [createMockUint8Array(1)]
@@ -721,53 +723,53 @@ test('extractPublicInputsFromCircuitInputs: returns all required fields', (asser
   assert.ok(result.railgunTxidIfHasUnshield)
 })
 
-test('standardToSnarkJSProof: converts a field correctly', (assert) => {
+test('standardToSnarkJSProof: converts a field correctly', () => {
   const standardProof = createMockStandardProof()
   const result = standardToSnarkJSProof(standardProof)
 
-  assert.is(result.protocol, 'groth16')
-  assert.is(result.pi_a.length, 2)
-  assert.is(result.pi_a[0], '123')
-  assert.is(result.pi_a[1], '456')
+  assert.equal(result.protocol, 'groth16')
+  assert.equal(result.pi_a.length, 2)
+  assert.equal(result.pi_a[0], '123')
+  assert.equal(result.pi_a[1], '456')
 })
 
-test('standardToSnarkJSProof: converts b field with reversal', (assert) => {
+test('standardToSnarkJSProof: converts b field with reversal', () => {
   const standardProof = createMockStandardProof()
   const result = standardToSnarkJSProof(standardProof)
 
-  assert.is(result.pi_b.length, 2)
-  assert.is(result.pi_b[0].length, 2)
-  assert.is(result.pi_b[1].length, 2)
+  assert.equal(result.pi_b.length, 2)
+  assert.equal(result.pi_b[0].length, 2)
+  assert.equal(result.pi_b[1].length, 2)
 
   // Verify reversal: b.x[1] -> pi_b[0][0], b.x[0] -> pi_b[0][1]
-  assert.is(result.pi_b[0][0], '101112') // b.x[1]
-  assert.is(result.pi_b[0][1], '789')    // b.x[0]
+  assert.equal(result.pi_b[0][0], '101112') // b.x[1]
+  assert.equal(result.pi_b[0][1], '789')    // b.x[0]
 
-  assert.is(result.pi_b[1][0], '161718') // b.y[1]
-  assert.is(result.pi_b[1][1], '131415') // b.y[0]
+  assert.equal(result.pi_b[1][0], '161718') // b.y[1]
+  assert.equal(result.pi_b[1][1], '131415') // b.y[0]
 })
 
-test('standardToSnarkJSProof: converts c field correctly', (assert) => {
+test('standardToSnarkJSProof: converts c field correctly', () => {
   const standardProof = createMockStandardProof()
   const result = standardToSnarkJSProof(standardProof)
 
-  assert.is(result.pi_c.length, 2)
-  assert.is(result.pi_c[0], '192021')
-  assert.is(result.pi_c[1], '222324')
+  assert.equal(result.pi_c.length, 2)
+  assert.equal(result.pi_c[0], '192021')
+  assert.equal(result.pi_c[1], '222324')
 })
 
-test('standardToSnarkJSProof: round-trip conversion preserves proof', (assert) => {
+test('standardToSnarkJSProof: round-trip conversion preserves proof', () => {
   const originalSnarkjs = createMockSnarkjsProof()
   const standard = snarkJSToStandardProof(originalSnarkjs)
   const backToSnarkjs = standardToSnarkJSProof(standard)
 
-  assert.is(backToSnarkjs.pi_a[0], originalSnarkjs.pi_a[0])
-  assert.is(backToSnarkjs.pi_a[1], originalSnarkjs.pi_a[1])
-  assert.is(backToSnarkjs.pi_c[0], originalSnarkjs.pi_c[0])
-  assert.is(backToSnarkjs.pi_c[1], originalSnarkjs.pi_c[1])
+  assert.equal(backToSnarkjs.pi_a[0], originalSnarkjs.pi_a[0])
+  assert.equal(backToSnarkjs.pi_a[1], originalSnarkjs.pi_a[1])
+  assert.equal(backToSnarkjs.pi_c[0], originalSnarkjs.pi_c[0])
+  assert.equal(backToSnarkjs.pi_c[1], originalSnarkjs.pi_c[1])
 })
 
-test('standardToSnarkJSProof: handles zero values', (assert) => {
+test('standardToSnarkJSProof: handles zero values', () => {
   const zeroProof: Proof = {
     a: { x: createMockUint8Array(0), y: createMockUint8Array(0) },
     b: {
@@ -779,13 +781,13 @@ test('standardToSnarkJSProof: handles zero values', (assert) => {
 
   const result = standardToSnarkJSProof(zeroProof)
 
-  assert.is(result.pi_a[0], '0')
-  assert.is(result.pi_a[1], '0')
-  assert.is(result.pi_b[0][0], '0')
-  assert.is(result.pi_c[0], '0')
+  assert.equal(result.pi_a[0], '0')
+  assert.equal(result.pi_a[1], '0')
+  assert.equal(result.pi_b[0][0], '0')
+  assert.equal(result.pi_c[0], '0')
 })
 
-test('standardToSnarkJSPublicInputs: returns array in correct order', (assert) => {
+test('standardToSnarkJSPublicInputs: returns array in correct order', () => {
   const publicInputs: POIPublicInputs = {
     proof: createMockStandardProof(),
     blindedCommitmentsOut: [
@@ -804,25 +806,25 @@ test('standardToSnarkJSPublicInputs: returns array in correct order', (assert) =
   const result = standardToSnarkJSPublicInputs(publicInputs)
 
   // Total should be: 3 (blindedCommitmentsOut) + 1 + 1 + 2 (poiMerkleroots) = 7
-  assert.is(result.length, 7)
+  assert.equal(result.length, 7)
 
   // First 3 should be blindedCommitmentsOut
-  assert.is(result[0], '1')
-  assert.is(result[1], '2')
-  assert.is(result[2], '3')
+  assert.equal(result[0], '1')
+  assert.equal(result[1], '2')
+  assert.equal(result[2], '3')
 
   // Then anyRailgunTxidMerklerootAfterTransaction
-  assert.is(result[3], '100')
+  assert.equal(result[3], '100')
 
   // Then railgunTxidIfHasUnshield
-  assert.is(result[4], '200')
+  assert.equal(result[4], '200')
 
   // Finally poiMerkleroots
-  assert.is(result[5], '300')
-  assert.is(result[6], '400')
+  assert.equal(result[5], '300')
+  assert.equal(result[6], '400')
 })
 
-test('standardToSnarkJSPublicInputs: converts all values to strings', (assert) => {
+test('standardToSnarkJSPublicInputs: converts all values to strings', () => {
   const publicInputs: POIPublicInputs = {
     proof: createMockStandardProof(),
     blindedCommitmentsOut: [createMockUint8Array(1)],
@@ -836,7 +838,7 @@ test('standardToSnarkJSPublicInputs: converts all values to strings', (assert) =
   assert.ok(result.every((val: any) => typeof val === 'string'))
 })
 
-test('standardToSnarkJSPublicInputs: handles empty blindedCommitmentsOut', (assert) => {
+test('standardToSnarkJSPublicInputs: handles empty blindedCommitmentsOut', () => {
   const publicInputs: POIPublicInputs = {
     proof: createMockStandardProof(),
     blindedCommitmentsOut: [],
@@ -848,13 +850,13 @@ test('standardToSnarkJSPublicInputs: handles empty blindedCommitmentsOut', (asse
   const result = standardToSnarkJSPublicInputs(publicInputs)
 
   // Should be 0 + 1 + 1 + 1 = 3
-  assert.is(result.length, 3)
-  assert.is(result[0], '100')
-  assert.is(result[1], '200')
-  assert.is(result[2], '300')
+  assert.equal(result.length, 3)
+  assert.equal(result[0], '100')
+  assert.equal(result[1], '200')
+  assert.equal(result[2], '300')
 })
 
-test('standardToSnarkJSPublicInputs: handles empty poiMerkleroots', (assert) => {
+test('standardToSnarkJSPublicInputs: handles empty poiMerkleroots', () => {
   const publicInputs: POIPublicInputs = {
     proof: createMockStandardProof(),
     blindedCommitmentsOut: [createMockUint8Array(1)],
@@ -866,13 +868,13 @@ test('standardToSnarkJSPublicInputs: handles empty poiMerkleroots', (assert) => 
   const result = standardToSnarkJSPublicInputs(publicInputs)
 
   // Should be 1 + 1 + 1 + 0 = 3
-  assert.is(result.length, 3)
-  assert.is(result[0], '1')
-  assert.is(result[1], '100')
-  assert.is(result[2], '200')
+  assert.equal(result.length, 3)
+  assert.equal(result[0], '1')
+  assert.equal(result[1], '100')
+  assert.equal(result[2], '200')
 })
 
-test('standardToSnarkJSPublicInputs: handles large numbers', (assert) => {
+test('standardToSnarkJSPublicInputs: handles large numbers', () => {
   const largeNum = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
   const largeArray = bigIntToBytes(BigInt(largeNum), 32)
 
@@ -889,7 +891,7 @@ test('standardToSnarkJSPublicInputs: handles large numbers', (assert) => {
   assert.ok(result.every((val: string) => val === largeNum))
 })
 
-test('standardToSnarkJSPublicInputs: handles 13 blindedCommitmentsOut (realistic case)', (assert) => {
+test('standardToSnarkJSPublicInputs: handles 13 blindedCommitmentsOut (realistic case)', () => {
   const blindedCommitments = Array.from({ length: 13 }, (_, i) => createMockUint8Array(i))
   const poiMerkleroots = Array.from({ length: 13 }, (_, i) => createMockUint8Array(100 + i))
 
@@ -904,24 +906,24 @@ test('standardToSnarkJSPublicInputs: handles 13 blindedCommitmentsOut (realistic
   const result = standardToSnarkJSPublicInputs(publicInputs)
 
   // Should be 13 + 1 + 1 + 13 = 28
-  assert.is(result.length, 28)
+  assert.equal(result.length, 28)
 
   // Verify first blindedCommitment
-  assert.is(result[0], '0')
-  assert.is(result[12], '12')
+  assert.equal(result[0], '0')
+  assert.equal(result[12], '12')
 
   // Verify anyRailgunTxidMerklerootAfterTransaction
-  assert.is(result[13], '1000')
+  assert.equal(result[13], '1000')
 
   // Verify railgunTxidIfHasUnshield
-  assert.is(result[14], '2000')
+  assert.equal(result[14], '2000')
 
   // Verify first and last poiMerkleroot
-  assert.is(result[15], '100')
-  assert.is(result[27], '112')
+  assert.equal(result[15], '100')
+  assert.equal(result[27], '112')
 })
 
-test('integration: full conversion pipeline', (assert) => {
+test('integration: full conversion pipeline', () => {
   // Create circuit inputs
   const circuitInputs = createMockCircuitInputs()
 
@@ -947,30 +949,30 @@ test('integration: full conversion pipeline', (assert) => {
   // Verify all conversions
   assert.ok(Array.isArray(snarkjsPublicInputs))
   assert.ok(snarkjsPublicInputs.every((val: any) => typeof val === 'string'))
-  assert.is(snarkjsProofForVerify.protocol, 'groth16')
+  assert.equal(snarkjsProofForVerify.protocol, 'groth16')
 })
 
-test('integration: proof round-trip conversion', (assert) => {
+test('integration: proof round-trip conversion', () => {
   const original = createMockSnarkjsProof()
   const standard = snarkJSToStandardProof(original)
   const backToSnarkjs = standardToSnarkJSProof(standard)
 
   // Verify pi_a
-  assert.is(backToSnarkjs.pi_a[0], original.pi_a[0])
-  assert.is(backToSnarkjs.pi_a[1], original.pi_a[1])
+  assert.equal(backToSnarkjs.pi_a[0], original.pi_a[0])
+  assert.equal(backToSnarkjs.pi_a[1], original.pi_a[1])
 
   // Verify pi_b (note: reversal in both directions should cancel out)
-  assert.is(backToSnarkjs.pi_b[0][0], original.pi_b[0][0])
-  assert.is(backToSnarkjs.pi_b[0][1], original.pi_b[0][1])
-  assert.is(backToSnarkjs.pi_b[1][0], original.pi_b[1][0])
-  assert.is(backToSnarkjs.pi_b[1][1], original.pi_b[1][1])
+  assert.equal(backToSnarkjs.pi_b[0][0], original.pi_b[0][0])
+  assert.equal(backToSnarkjs.pi_b[0][1], original.pi_b[0][1])
+  assert.equal(backToSnarkjs.pi_b[1][0], original.pi_b[1][0])
+  assert.equal(backToSnarkjs.pi_b[1][1], original.pi_b[1][1])
 
   // Verify pi_c
-  assert.is(backToSnarkjs.pi_c[0], original.pi_c[0])
-  assert.is(backToSnarkjs.pi_c[1], original.pi_c[1])
+  assert.equal(backToSnarkjs.pi_c[0], original.pi_c[0])
+  assert.equal(backToSnarkjs.pi_c[1], original.pi_c[1])
 })
 
-test('integration: real-world values from test vector', (assert) => {
+test('integration: real-world values from test vector', () => {
   // Using actual values from your test data
   const realWorldInputs = createMockCircuitInputs()
 
@@ -999,9 +1001,9 @@ test('integration: real-world values from test vector', (assert) => {
 
   // Verify we can convert back
   const backToNumber = BigInt(snarkjsFormat.anyRailgunTxidMerklerootAfterTransaction).toString()
-  assert.is(backToNumber, '3992948854570403243612454494108563343803762571679238500930694570641057471215')
+  assert.equal(backToNumber, '3992948854570403243612454494108563343803762571679238500930694570641057471215')
 })
-test('integration: public inputs match circuit output format', (assert) => {
+test('integration: public inputs match circuit output format', () => {
   // Simulate what the circuit returns
   const circuitPublicSignals = [
     // 13 blindedCommitmentsOut (outputs come first!)
@@ -1045,13 +1047,13 @@ test('integration: public inputs match circuit output format', (assert) => {
   const result = standardToSnarkJSPublicInputs(publicInputs)
 
   // Should match circuit output exactly
-  assert.is(result.length, circuitPublicSignals.length)
+  assert.equal(result.length, circuitPublicSignals.length)
   circuitPublicSignals.forEach((expected, i) => {
-    assert.is(result[i], expected, `public input ${i} should match`)
+    assert.equal(result[i], expected, `public input ${i} should match`)
   })
 })
 
-test('edge case: maximum array sizes', (assert) => {
+test('edge case: maximum array sizes', () => {
   const maxInputs: POICircuitInputs = {
     anyRailgunTxidMerklerootAfterTransaction: createMockUint8Array(1),
     poiMerkleroots: Array.from({ length: 13 }, (_, i) => createMockUint8Array(i)),
@@ -1080,15 +1082,15 @@ test('edge case: maximum array sizes', (assert) => {
   const result = standardToSnarkJSInput(maxInputs)
 
   // Verify all arrays are converted
-  assert.is(result.poiMerkleroots.length, 13)
-  assert.is(result.nullifiers.length, 13)
-  assert.is(result.commitmentsOut.length, 13)
-  assert.is(result.valuesIn.length, 13)
-  assert.is(result.poiInMerkleProofPathElements.length, 13)
-  assert.is(result.poiInMerkleProofPathElements[0]?.length, 16)
+  assert.equal(result.poiMerkleroots.length, 13)
+  assert.equal(result.nullifiers.length, 13)
+  assert.equal(result.commitmentsOut.length, 13)
+  assert.equal(result.valuesIn.length, 13)
+  assert.equal(result.poiInMerkleProofPathElements.length, 13)
+  assert.equal(result.poiInMerkleProofPathElements[0]?.length, 16)
 })
 
-test('edge case: all zero values', (assert) => {
+test('edge case: all zero values', () => {
   const zeroInputs: POICircuitInputs = {
     anyRailgunTxidMerklerootAfterTransaction: createMockUint8Array(0),
     poiMerkleroots: [createMockUint8Array(0), createMockUint8Array(0)],
@@ -1115,26 +1117,26 @@ test('edge case: all zero values', (assert) => {
   const result = standardToSnarkJSInput(zeroInputs)
 
   // All hex strings should be 0x followed by 64 zeros (32 bytes)
-  assert.is(result.token, '0x' + '00'.repeat(32))
-  assert.is(result.valuesIn[0], '0')
-  assert.is(result.utxoTreeIn, 0)
+  assert.equal(result.token, '0x' + '00'.repeat(32))
+  assert.equal(result.valuesIn[0], '0')
+  assert.equal(result.utxoTreeIn, 0)
 })
 
-test('edge case: mixed zero and non-zero values', (assert) => {
+test('edge case: mixed zero and non-zero values', () => {
   const mixedInputs = createMockCircuitInputs()
   mixedInputs.valuesIn = [BigInt(0), BigInt(1000), BigInt(0)]
   mixedInputs.valuesOut = [BigInt(500), BigInt(0)]
 
   const result = standardToSnarkJSInput(mixedInputs)
 
-  assert.is(result.valuesIn[0], '0')
-  assert.is(result.valuesIn[1], '1000')
-  assert.is(result.valuesIn[2], '0')
-  assert.is(result.valuesOut[0], '500')
-  assert.is(result.valuesOut[1], '0')
+  assert.equal(result.valuesIn[0], '0')
+  assert.equal(result.valuesIn[1], '1000')
+  assert.equal(result.valuesIn[2], '0')
+  assert.equal(result.valuesOut[0], '500')
+  assert.equal(result.valuesOut[1], '0')
 })
 
-test('consistency: proof field ordering', (assert) => {
+test('consistency: proof field ordering', () => {
   // Verify that the proof field order is consistent
   const proof = createMockStandardProof()
   const snarkjsProof = standardToSnarkJSProof(proof)
@@ -1146,14 +1148,14 @@ test('consistency: proof field ordering', (assert) => {
   assert.ok(snarkjsProof.pi_c)
 
   // Check array structures
-  assert.is(snarkjsProof.pi_a.length, 2)
-  assert.is(snarkjsProof.pi_b.length, 2)
-  assert.is(snarkjsProof.pi_b[0].length, 2)
-  assert.is(snarkjsProof.pi_b[1].length, 2)
-  assert.is(snarkjsProof.pi_c.length, 2)
+  assert.equal(snarkjsProof.pi_a.length, 2)
+  assert.equal(snarkjsProof.pi_b.length, 2)
+  assert.equal(snarkjsProof.pi_b[0].length, 2)
+  assert.equal(snarkjsProof.pi_b[1].length, 2)
+  assert.equal(snarkjsProof.pi_c.length, 2)
 })
 
-test('consistency: public inputs ordering verification', (assert) => {
+test('consistency: public inputs ordering verification', () => {
   // This test ensures the exact order matches the circuit
   const publicInputs: POIPublicInputs = {
     proof: createMockStandardProof(),
@@ -1182,53 +1184,53 @@ test('consistency: public inputs ordering verification', (assert) => {
     '300', '400', '500'  // poiMerkleroots
   ]
 
-  assert.alike(result, expectedOrder, 'public inputs should match expected order exactly')
+  assert.deepEqual(result, expectedOrder, 'public inputs should match expected order exactly')
 })
 
-test('type safety: all conversions preserve data types', (assert) => {
+test('type safety: all conversions preserve data types', () => {
   const inputs = createMockCircuitInputs()
   const snarkjsInputs = standardToSnarkJSInput(inputs)
 
   // Check that number fields remain numbers
-  assert.is(typeof snarkjsInputs.utxoTreeIn, 'number')
-  assert.is(typeof snarkjsInputs.railgunTxidMerkleProofIndices, 'number')
+  assert.equal(typeof snarkjsInputs.utxoTreeIn, 'number')
+  assert.equal(typeof snarkjsInputs.railgunTxidMerkleProofIndices, 'number')
   snarkjsInputs.utxoPositionsIn.forEach((pos: any) => {
-    assert.is(typeof pos, 'number')
+    assert.equal(typeof pos, 'number')
   })
 
   // Check that hex strings are strings
-  assert.is(typeof snarkjsInputs.token, 'string')
-  assert.is(typeof snarkjsInputs.nullifyingKey, 'string')
+  assert.equal(typeof snarkjsInputs.token, 'string')
+  assert.equal(typeof snarkjsInputs.nullifyingKey, 'string')
 
   // Check that BigInt values become strings
   snarkjsInputs.valuesIn.forEach((val: any) => {
-    assert.is(typeof val, 'string')
+    assert.equal(typeof val, 'string')
   })
 })
 
-test('performance: batch proof conversions', (assert) => {
+test('performance: batch proof conversions', () => {
   const proofs = Array.from({ length: 10 }, () => createMockSnarkjsProof())
 
   proofs.forEach(proof => {
     const standard = snarkJSToStandardProof(proof)
     const backToSnarkjs = standardToSnarkJSProof(standard)
 
-    assert.is(backToSnarkjs.pi_a[0], proof.pi_a[0])
-    assert.is(backToSnarkjs.protocol, 'groth16')
+    assert.equal(backToSnarkjs.pi_a[0], proof.pi_a[0])
+    assert.equal(backToSnarkjs.protocol, 'groth16')
   })
 })
 
-test('performance: batch input conversions', (assert) => {
+test('performance: batch input conversions', () => {
   const inputs = Array.from({ length: 10 }, () => createMockCircuitInputs())
 
   inputs.forEach(input => {
     const snarkjs = standardToSnarkJSInput(input)
     assert.ok(snarkjs.token.startsWith('0x'))
-    assert.is(typeof snarkjs.valuesIn[0], 'string')
+    assert.equal(typeof snarkjs.valuesIn[0], 'string')
   })
 })
 
-test('regression: pi_b reversal is correct', (assert) => {
+test('regression: pi_b reversal is correct', () => {
   // This test specifically verifies the reversal logic for pi_b
   // which is a common source of errors
   const snarkjsProof: SnarkjsProof = {
@@ -1244,22 +1246,22 @@ test('regression: pi_b reversal is correct', (assert) => {
   const standard = snarkJSToStandardProof(snarkjsProof)
 
   // After conversion: b.x[0] should be pi_b[0][1]=4, b.x[1] should be pi_b[0][0]=3
-  assert.is(bytesToBigInt(standard.b.x[0]).toString(), '4')
-  assert.is(bytesToBigInt(standard.b.x[1]).toString(), '3')
-  assert.is(bytesToBigInt(standard.b.y[0]).toString(), '6')
-  assert.is(bytesToBigInt(standard.b.y[1]).toString(), '5')
+  assert.equal(bytesToBigInt(standard.b.x[0]).toString(), '4')
+  assert.equal(bytesToBigInt(standard.b.x[1]).toString(), '3')
+  assert.equal(bytesToBigInt(standard.b.y[0]).toString(), '6')
+  assert.equal(bytesToBigInt(standard.b.y[1]).toString(), '5')
 
   // Convert back
   const backToSnarkjs = standardToSnarkJSProof(standard)
 
   // Should match original
-  assert.is(backToSnarkjs.pi_b[0][0], '3')
-  assert.is(backToSnarkjs.pi_b[0][1], '4')
-  assert.is(backToSnarkjs.pi_b[1][0], '5')
-  assert.is(backToSnarkjs.pi_b[1][1], '6')
+  assert.equal(backToSnarkjs.pi_b[0][0], '3')
+  assert.equal(backToSnarkjs.pi_b[0][1], '4')
+  assert.equal(backToSnarkjs.pi_b[1][0], '5')
+  assert.equal(backToSnarkjs.pi_b[1][1], '6')
 })
 
-test('regression: public inputs must include all 28 elements for 13x13 circuit', (assert) => {
+test('regression: public inputs must include all 28 elements for 13x13 circuit', () => {
   // Real-world scenario: 13 inputs, 13 outputs
   const blindedCommitments = Array.from({ length: 13 }, (_, i) => createMockUint8Array(i))
   const poiMerkleroots = Array.from({ length: 13 }, (_, i) => createMockUint8Array(100 + i))
@@ -1277,10 +1279,10 @@ test('regression: public inputs must include all 28 elements for 13x13 circuit',
   // CRITICAL: Must be exactly 28 for the circuit
   // 13 (blindedCommitmentsOut) + 1 (anyRailgunTxidMerklerootAfterTransaction) +
   // 1 (railgunTxidIfHasUnshield) + 13 (poiMerkleroots) = 28
-  assert.is(result.length, 28, 'must have exactly 28 public inputs for 13x13 circuit')
+  assert.equal(result.length, 28, 'must have exactly 28 public inputs for 13x13 circuit')
 })
 
-test('regression: hex strings must be properly padded', (assert) => {
+test('regression: hex strings must be properly padded', () => {
   // Small numbers should be padded to 32 bytes (64 hex chars + 0x)
   const smallValue = createMockUint8Array(1)
   const circuitInputs = createMockCircuitInputs()
@@ -1289,6 +1291,6 @@ test('regression: hex strings must be properly padded', (assert) => {
   const result = standardToSnarkJSInput(circuitInputs)
 
   // Should be 0x + 64 characters
-  assert.is(result.token.length, 66, 'hex string should be properly padded')
+  assert.equal(result.token.length, 66, 'hex string should be properly padded')
   assert.ok(result.token.endsWith('01'), 'should have value at end')
 })

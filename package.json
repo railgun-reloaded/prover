@@ -17,8 +17,8 @@
   "scripts": {
     "prepare": "npm run build",
     "pretest": "npm run build",
-    "test": "NODE_OPTIONS=--enable-source-maps brittle --coverage test/**/*.js",
-    "test:adapter": "npm run build && NODE_OPTIONS=--enable-source-maps brittle test/adapter/**/*.js",
+    "test": "node --test --enable-source-maps test/*.test.js test/**/*.test.js",
+    "test:adapter": "npm run build && node --test --enable-source-maps test/adapter/**/*.test.js",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "build": "tsc --build",
@@ -28,7 +28,6 @@
     "@railgun-reloaded/eslint-config": "^1.1.0",
     "@railgun-reloaded/tsconfig": "^1.2.0",
     "@types/node": "^22.13.10",
-    "brittle": "^3.12.2",
     "eslint": "^9.22.0",
     "typescript": "^5.8.2"
   },
