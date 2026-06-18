@@ -1,4 +1,4 @@
-import type { Proof, ProverArtifacts, VKey } from '../definitions'
+import type { Proof, ProverArtifacts, VKey } from '../definitions.js'
 
 /**
  * Bigint-based transaction circuit inputs.

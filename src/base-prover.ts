@@ -1,4 +1,4 @@
-import type { Proof, ProverArtifacts } from './definitions'
+import type { Proof, ProverArtifacts } from './definitions.js'
 
 /**
  * Base Prover interface for generating and verifying zero-knowledge proofs.

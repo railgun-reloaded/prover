@@ -2,10 +2,10 @@ import { bigIntToBytes } from '@railgun-reloaded/bytes'
 import type { SnarkjsProof } from 'snarkjs'
 import { curves, groth16 } from 'snarkjs'
 
-import type { BaseProver } from '../base-prover'
+import type { BaseProver } from '../base-prover.js'
 
-import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatter'
-import type { POICircuitInputs, POIPublicInputs, Proof, ProverArtifacts } from './types'
+import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatter.js'
+import type { POICircuitInputs, POIPublicInputs, Proof, ProverArtifacts } from './types.js'
 
 /**
  * Implementation of BaseProver for Railgun POI circuits using snarkjs

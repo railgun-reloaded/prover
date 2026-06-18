@@ -11,9 +11,9 @@ import {
   standardToSnarkJSInput,
   standardToSnarkJSProof,
   standardToSnarkJSPublicInputs
-} from '../src/poi/formatter'
-import type { POICircuitInputs, POIPublicInputs } from '../src/poi/types'
-import type { Proof } from '../src/transaction/types'
+} from '../src/poi/formatter.js'
+import type { POICircuitInputs, POIPublicInputs } from '../src/poi/types.js'
+import type { Proof } from '../src/transaction/types.js'
 
 /**
  * Builds a 32-byte big-endian `Uint8Array` from a small numeric value, used

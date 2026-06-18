@@ -1,15 +1,15 @@
 import type { SnarkjsProof } from 'snarkjs'
 import { curves, groth16 } from 'snarkjs'
 
-import type { BaseProver } from '../base-prover'
+import type { BaseProver } from '../base-prover.js'
 
-import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatter'
+import { extractPublicInputsFromCircuitInputs, snarkJSToStandardProof, standardToSnarkJSInput, standardToSnarkJSProof, standardToSnarkJSPublicInputs } from './formatter.js'
 import type {
   Proof,
   ProverArtifacts,
   TransactionCircuitInputs,
   TransactionPublicInputs
-} from './types'
+} from './types.js'
 
 /**
  * Implementation of BaseProver for Railgun circuits using snarkjs

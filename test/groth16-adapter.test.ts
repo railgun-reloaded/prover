@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { createGroth16ForEngine } from '../src'
+import { createGroth16ForEngine } from '../src/index.js'
 
 test('createGroth16ForEngine — returns adapter with fullProve and verify', () => {
   const adapter = createGroth16ForEngine()

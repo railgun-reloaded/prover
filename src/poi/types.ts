@@ -1,4 +1,4 @@
-import type { Proof, ProverArtifacts } from '../definitions'
+import type { Proof, ProverArtifacts } from '../definitions.js'
 
 /**
  * Bigint-based POI circuit inputs.
